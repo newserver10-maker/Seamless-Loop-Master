@@ -1,8 +1,20 @@
 export const translations = {
   ko: {
+    nav: {
+      home: "홈",
+      about: "서비스 소개",
+      blog: "루프 가이드",
+      contact: "문의하기",
+      privacy: "개인정보처리방침",
+      terms: "이용약관"
+    },
     app: {
       title: "심리스 루프 마스터",
-      footer: "브라우저에서 직접 실행되는 안전한 편집 도구입니다. 서버로 영상이 전송되지 않습니다."
+      subtitle: "SNS 마케팅을 위한 완벽한 무한 반복 영상 제작 도구",
+      footer: "© 2024 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
+    },
+    ad: {
+      label: "광고 (Advertisement)"
     },
     uploader: {
       title: "동영상 업로드",
@@ -73,9 +85,21 @@ export const translations = {
     }
   },
   en: {
+    nav: {
+      home: "Home",
+      about: "About Us",
+      blog: "Loop Guide",
+      contact: "Contact",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service"
+    },
     app: {
       title: "Seamless Loop Master",
-      footer: "Secure browser-based tool. Videos are processed locally and never sent to a server."
+      subtitle: "The ultimate tool for creating infinite loop videos for social media marketing.",
+      footer: "© 2024 Seamless Loop Master. All rights reserved. Secure browser-based processing."
+    },
+    ad: {
+      label: "Advertisement"
     },
     uploader: {
       title: "Upload Video",
