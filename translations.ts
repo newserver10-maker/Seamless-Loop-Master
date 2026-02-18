@@ -2,17 +2,27 @@ export const translations = {
   ko: {
     nav: {
       home: "홈",
-      howTo: "사용 방법",
-      guide: "루프 가이드",
-      faq: "자주 묻는 질문",
+      gallery: "트렌드 갤러리",
+      insights: "인사이트",
+      howTo: "사용 가이드",
       contact: "문의하기",
       privacy: "개인정보처리방침",
       terms: "이용약관"
     },
     app: {
-      title: "심리스 루프 마스터",
-      subtitle: "SNS 마케팅을 위한 완벽한 무한 반복 영상 제작 도구",
-      footer: "© 2024 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
+      title: "2026 심리스 루프 마스터",
+      subtitle: "SNS 마케팅을 위한 차세대 무한 반복 영상 제작 솔루션",
+      footer: "© 2026 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
+    },
+    gallery: {
+      title: "실시간 루프 트렌드 갤러리",
+      desc: "전 세계 크리에이터들이 주목하는 고품질 심리스 루프 영상을 확인하세요.",
+      viewMore: "더 많은 트렌드 보기",
+      hoverPlay: "마우스를 올리면 재생됩니다"
+    },
+    insights: {
+      title: "2026 숏폼 & 루프 테크 칼럼",
+      readMore: "자세히 읽기"
     },
     howto: {
       title: "3단계로 완성하는 완벽한 루프",
@@ -97,17 +107,27 @@ export const translations = {
   en: {
     nav: {
       home: "Home",
+      gallery: "Trend Gallery",
+      insights: "Insights",
       howTo: "How to Use",
-      guide: "Loop Guide",
-      faq: "FAQ",
       contact: "Contact",
       privacy: "Privacy Policy",
       terms: "Terms of Service"
     },
     app: {
-      title: "Seamless Loop Master",
-      subtitle: "The ultimate tool for creating infinite loop videos for social media marketing.",
-      footer: "© 2024 Seamless Loop Master. All rights reserved. Secure browser-based processing."
+      title: "2026 Seamless Loop Master",
+      subtitle: "Next-Gen Infinite Loop Video Solution for Social Marketing",
+      footer: "© 2026 Seamless Loop Master. All rights reserved. Secure browser-based processing."
+    },
+    gallery: {
+      title: "Real-time Loop Trend Gallery",
+      desc: "Discover high-quality seamless loop videos trending worldwide.",
+      viewMore: "View More Trends",
+      hoverPlay: "Hover to play preview"
+    },
+    insights: {
+      title: "2026 Short-form & Loop Tech Columns",
+      readMore: "Read More"
     },
     howto: {
       title: "Perfect Loops in 3 Steps",
