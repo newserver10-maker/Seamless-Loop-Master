@@ -5,7 +5,7 @@ import { ContactForm } from './components/ContactForm';
 import { AdUnit } from './components/AdUnit';
 import { SeoContent } from './components/SeoContent';
 import { LegalInfo } from './components/LegalInfo';
-import { Infinity, Globe, Menu, X } from 'lucide-react';
+import { Infinity, Globe, Menu, X, MousePointerClick, Settings2, Download } from 'lucide-react';
 import { useLanguage } from './contexts/LanguageContext';
 
 export default function App() {
@@ -21,7 +21,15 @@ export default function App() {
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        // Adjust for sticky header
+        const headerOffset = 80;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
         setIsMenuOpen(false);
     }
   };
@@ -29,6 +37,17 @@ export default function App() {
   const openLegal = (type: 'privacy' | 'terms') => {
     setLegalModal({ isOpen: true, type });
   };
+
+  const HowToCard = ({ icon, step, title, desc }: { icon: React.ReactNode, step: string, title: string, desc: string }) => (
+    <div className="bg-[#1e1e1e] p-6 rounded-xl border border-white/5 flex flex-col items-center text-center hover:border-blue-500/30 transition-colors">
+        <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 mb-4">
+            {icon}
+        </div>
+        <div className="text-xs font-bold text-blue-500 mb-1 uppercase tracking-wider">{step}</div>
+        <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+        <p className="text-sm text-gray-400">{desc}</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#121212] text-white font-sans selection:bg-blue-500/30 flex flex-col">
@@ -38,20 +57,20 @@ export default function App() {
         <div className="absolute top-20 right-20 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header / Navigation */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-black/50 border-b border-white/5">
+      {/* Sticky Header / Navigation */}
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-black/80 border-b border-white/5 shadow-lg">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => { setFile(null); window.scrollTo(0,0); }}>
-                <Infinity className="w-8 h-8 text-blue-500" />
+            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setFile(null); window.scrollTo(0,0); }}>
+                <Infinity className="w-8 h-8 text-blue-500 group-hover:rotate-180 transition-transform duration-500" />
                 <span className="font-bold text-lg hidden md:block tracking-tight">Seamless Loop</span>
             </div>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
-                <button onClick={() => { setFile(null); window.scrollTo(0,0); }} className="hover:text-white transition-colors">{t.nav.home}</button>
-                <button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors">{t.nav.about}</button>
-                <button onClick={() => scrollToSection('guide')} className="hover:text-white transition-colors">{t.nav.blog}</button>
-                <button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors">{t.nav.contact}</button>
+                <button onClick={() => { setFile(null); window.scrollTo(0,0); }} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.home}</button>
+                <button onClick={() => scrollToSection('howto')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.howTo}</button>
+                <button onClick={() => scrollToSection('guide')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.guide}</button>
+                <button onClick={() => scrollToSection('faq')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.faq}</button>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -72,12 +91,12 @@ export default function App() {
 
         {/* Mobile Nav Dropdown */}
         {isMenuOpen && (
-             <div className="md:hidden bg-[#1e1e1e] border-b border-white/10 animate-in slide-in-from-top-2">
+             <div className="md:hidden bg-[#1e1e1e] border-b border-white/10 animate-in slide-in-from-top-2 absolute w-full left-0">
                 <div className="flex flex-col p-4 space-y-4 text-sm font-medium text-gray-300">
                     <button onClick={() => { setFile(null); window.scrollTo(0,0); setIsMenuOpen(false); }}>{t.nav.home}</button>
-                    <button onClick={() => scrollToSection('about')}>{t.nav.about}</button>
-                    <button onClick={() => scrollToSection('guide')}>{t.nav.blog}</button>
-                    <button onClick={() => scrollToSection('contact')}>{t.nav.contact}</button>
+                    <button onClick={() => scrollToSection('howto')}>{t.nav.howTo}</button>
+                    <button onClick={() => scrollToSection('guide')}>{t.nav.guide}</button>
+                    <button onClick={() => scrollToSection('faq')}>{t.nav.faq}</button>
                 </div>
              </div>
         )}
@@ -86,38 +105,67 @@ export default function App() {
       <main className="relative z-10 container mx-auto px-4 py-8 flex-grow">
         
         {/* Top Ad Banner */}
-        <AdUnit className="max-w-4xl mx-auto" />
+        <AdUnit className="max-w-4xl mx-auto mb-8" />
 
         {!file ? (
           <div className="flex flex-col h-full max-w-5xl mx-auto animate-fade-in">
              {/* Hero Section */}
-             <section id="home" className="text-center py-10 space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-gray-400">
+             <section id="home" className="text-center py-12 space-y-6">
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-gray-400 pb-2">
                   {t.app.title}
                 </h1>
-                <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
                    {t.app.subtitle}
                 </p>
              </section>
 
+             {/* Main Tool */}
              <VideoUploader onFileSelect={setFile} />
              
+             {/* How To Use Section */}
+             <section id="howto" className="py-20">
+                <div className="text-center mb-10">
+                    <h2 className="text-2xl font-bold text-white mb-2">{t.howto.title}</h2>
+                    <div className="h-1 w-12 bg-blue-500 mx-auto rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <HowToCard 
+                        icon={<MousePointerClick className="w-6 h-6"/>} 
+                        step="Step 1" 
+                        title={t.howto.step1} 
+                        desc={t.howto.step1Desc} 
+                    />
+                    <HowToCard 
+                        icon={<Settings2 className="w-6 h-6"/>} 
+                        step="Step 2" 
+                        title={t.howto.step2} 
+                        desc={t.howto.step2Desc} 
+                    />
+                    <HowToCard 
+                        icon={<Download className="w-6 h-6"/>} 
+                        step="Step 3" 
+                        title={t.howto.step3} 
+                        desc={t.howto.step3Desc} 
+                    />
+                </div>
+             </section>
+
              {/* Middle Ad Unit */}
-             <AdUnit className="max-w-2xl mx-auto my-12" />
+             <AdUnit className="max-w-3xl mx-auto my-4" />
              
-             {/* Rich SEO Content */}
+             {/* Rich SEO Content & FAQ */}
              <div id="guide">
                  <SeoContent />
              </div>
 
-             <div id="contact">
+             <div id="contact" className="border-t border-white/5 pt-10 mt-10">
                  <ContactForm />
              </div>
           </div>
         ) : (
           <div className="animate-fade-in">
               <LoopEditor file={file} onBack={() => setFile(null)} />
-              <AdUnit className="max-w-5xl mx-auto mt-8" />
+              <AdUnit className="max-w-5xl mx-auto mt-12" />
           </div>
         )}
       </main>
@@ -125,20 +173,43 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-[#0a0a0a] border-t border-white/5 py-12 mt-20 relative z-10">
         <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-2 opacity-80">
-                    <Infinity className="w-5 h-5 text-blue-500" />
-                    <span className="font-semibold text-gray-300">Seamless Loop</span>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div className="col-span-1 md:col-span-2 space-y-4">
+                    <div className="flex items-center gap-2">
+                        <Infinity className="w-6 h-6 text-blue-500" />
+                        <span className="font-bold text-xl text-white">Seamless Loop</span>
+                    </div>
+                    <p className="text-sm text-gray-500 max-w-xs">
+                        {t.app.footer}
+                    </p>
                 </div>
                 
-                <div className="flex gap-6 text-sm text-gray-500">
-                    <button onClick={() => openLegal('privacy')} className="hover:text-gray-300 transition-colors">{t.nav.privacy}</button>
-                    <button onClick={() => openLegal('terms')} className="hover:text-gray-300 transition-colors">{t.nav.terms}</button>
-                    <button onClick={() => scrollToSection('contact')} className="hover:text-gray-300 transition-colors">{t.nav.contact}</button>
+                <div>
+                    <h4 className="font-semibold text-white mb-4">Service</h4>
+                    <ul className="space-y-2 text-sm text-gray-500">
+                        <li><button onClick={() => { setFile(null); window.scrollTo(0,0); }} className="hover:text-blue-400">{t.nav.home}</button></li>
+                        <li><button onClick={() => scrollToSection('howto')} className="hover:text-blue-400">{t.nav.howTo}</button></li>
+                        <li><button onClick={() => scrollToSection('guide')} className="hover:text-blue-400">{t.nav.guide}</button></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 className="font-semibold text-white mb-4">Legal & Support</h4>
+                    <ul className="space-y-2 text-sm text-gray-500">
+                        <li><button onClick={() => openLegal('privacy')} className="hover:text-blue-400">{t.nav.privacy}</button></li>
+                        <li><button onClick={() => openLegal('terms')} className="hover:text-blue-400">{t.nav.terms}</button></li>
+                        <li><button onClick={() => scrollToSection('contact')} className="hover:text-blue-400">{t.nav.contact}</button></li>
+                    </ul>
                 </div>
             </div>
-            <div className="mt-8 text-center text-xs text-gray-600">
-                <p>{t.app.footer}</p>
+            
+            <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
+                <p>&copy; 2024 Seamless Loop Master. All rights reserved.</p>
+                <div className="flex gap-4 mt-4 md:mt-0">
+                    <span>Privacy First</span>
+                    <span>Serverless Architecture</span>
+                    <span>High Performance</span>
+                </div>
             </div>
         </div>
       </footer>

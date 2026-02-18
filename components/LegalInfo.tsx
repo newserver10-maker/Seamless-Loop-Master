@@ -28,25 +28,35 @@ export const LegalInfo: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) 
         <div className="p-6 overflow-y-auto text-sm text-gray-300 leading-relaxed space-y-4 custom-scrollbar">
           {type === 'privacy' ? (
             <>
-              <h3 className="text-lg font-semibold text-white">1. 개인정보 처리방침 개요</h3>
-              <p>심리스 루프 마스터(이하 "서비스")는 사용자의 개인정보를 소중히 다루며, 관련 법령을 준수합니다. 본 서비스는 <strong>서버리스(Serverless)</strong> 아키텍처를 기반으로 하여, 사용자가 업로드한 동영상 파일이 외부 서버로 전송되거나 저장되지 않고 사용자의 브라우저 내에서만 처리됨을 명확히 고지합니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-2">1. 개인정보 처리방침 (Privacy Policy)</h3>
+              <p>심리스 루프 마스터(Seamless Loop Master, 이하 "서비스")는 사용자의 개인정보를 최우선으로 보호하며, 다음과 같은 정책을 준수합니다.</p>
               
-              <h3 className="text-lg font-semibold text-white">2. 수집하는 개인정보 항목</h3>
-              <p>본 서비스는 회원가입 기능을 제공하지 않으며, 이용자의 성명, 전화번호 등 식별 가능한 개인정보를 수집하지 않습니다. 단, 문의하기(Contact Form) 기능을 이용할 경우 이메일 주소와 이름이 수집될 수 있으며 이는 문의 응대 목적으로만 사용됩니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-4">2. 데이터 처리 방식 (Client-Side Processing)</h3>
+              <p>본 서비스는 <strong>서버리스(Serverless) 및 클라이언트 사이드 프로세싱</strong> 기술을 기반으로 운영됩니다. 사용자가 업로드하는 모든 동영상 및 미디어 파일은 사용자의 디바이스(브라우저) 내에서만 처리되며, 어떠한 경우에도 외부 서버로 전송되거나 저장되지 않습니다. 따라서 서비스 제공자는 사용자의 원본 데이터에 접근할 수 없습니다.</p>
               
-              <h3 className="text-lg font-semibold text-white">3. 쿠키(Cookie) 및 광고 식별자</h3>
-              <p>서비스 이용 편의성과 구글 애드센스(Google AdSense) 광고 게재를 위해 쿠키가 사용될 수 있습니다. 사용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-4">3. 수집하는 정보 및 쿠키 (Cookies)</h3>
+              <p>서비스는 회원가입을 요구하지 않으며, 이름이나 전화번호 같은 개인 식별 정보를 수집하지 않습니다. 단, 서비스 개선 및 광고 게재를 위해 다음과 같은 기술적 정보가 수집될 수 있습니다.</p>
+              <ul className="list-disc pl-5 space-y-1">
+                  <li><strong>Google AdSense:</strong> 광고 게재를 위해 Google 및 파트너사는 사용자의 방문 기록을 바탕으로 쿠키(Cookie)를 사용할 수 있습니다. 사용자는 Google 광고 설정에서 맞춤형 광고를 해제할 수 있습니다.</li>
+                  <li><strong>Google Analytics:</strong> 서비스 이용 통계(방문자 수, 체류 시간 등) 분석을 위해 익명의 데이터가 수집될 수 있습니다.</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold text-white mt-4">4. 문의하기 (Contact)</h3>
+              <p>사용자가 이메일 문의 기능을 이용할 경우, 회신을 위해 이메일 주소와 이름이 일시적으로 수집될 수 있으며, 목적 달성 후 즉시 파기됩니다.</p>
             </>
           ) : (
             <>
-              <h3 className="text-lg font-semibold text-white">1. 서비스 이용 약관</h3>
-              <p>본 약관은 심리스 루프 마스터가 제공하는 영상 편집 도구의 이용 조건 및 절차를 규정합니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-2">1. 서비스 이용 약관 (Terms of Service)</h3>
+              <p>본 약관은 심리스 루프 마스터 웹사이트 이용에 관한 제반 사항을 규정합니다.</p>
               
-              <h3 className="text-lg font-semibold text-white">2. 저작권 및 책임</h3>
-              <p>사용자가 편집하는 영상의 원본 저작권은 사용자에게 있습니다. 본 서비스를 통해 제작된 결과물의 사용으로 인해 발생하는 저작권 침해 분쟁이나 손해에 대해 서비스 제공자는 법적 책임을 지지 않습니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-4">2. 서비스의 제공 및 변경</h3>
+              <p>본 서비스는 사용자에게 무료로 제공되는 영상 편집 도구입니다. 운영상, 기술상의 필요에 따라 사전 공지 없이 서비스의 내용이 변경되거나 중단될 수 있습니다.</p>
               
-              <h3 className="text-lg font-semibold text-white">3. 서비스의 변경 및 중단</h3>
-              <p>본 서비스는 무료로 제공되며, 운영상의 목적에 따라 예고 없이 기능이 변경되거나 서비스가 중단될 수 있습니다.</p>
+              <h3 className="text-lg font-semibold text-white mt-4">3. 저작권 및 사용권</h3>
+              <p>사용자가 본 도구를 사용하여 제작한 영상 결과물(Output)에 대한 저작권은 전적으로 사용자에게 귀속됩니다. 서비스 제공자는 사용자가 제작한 콘텐츠에 대해 어떠한 권리도 주장하지 않습니다.</p>
+              
+              <h3 className="text-lg font-semibold text-white mt-4">4. 책임의 한계</h3>
+              <p>본 서비스는 "있는 그대로(As-Is)" 제공됩니다. 서비스 이용 과정에서 발생하는 데이터 손실, 디바이스 오류, 또는 제작된 영상의 사용으로 인한 법적 분쟁에 대해 서비스 제공자는 책임을 지지 않습니다.</p>
             </>
           )}
         </div>

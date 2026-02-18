@@ -2,8 +2,9 @@ export const translations = {
   ko: {
     nav: {
       home: "홈",
-      about: "서비스 소개",
-      blog: "루프 가이드",
+      howTo: "사용 방법",
+      guide: "루프 가이드",
+      faq: "자주 묻는 질문",
       contact: "문의하기",
       privacy: "개인정보처리방침",
       terms: "이용약관"
@@ -12,6 +13,15 @@ export const translations = {
       title: "심리스 루프 마스터",
       subtitle: "SNS 마케팅을 위한 완벽한 무한 반복 영상 제작 도구",
       footer: "© 2024 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
+    },
+    howto: {
+      title: "3단계로 완성하는 완벽한 루프",
+      step1: "영상 업로드",
+      step1Desc: "MP4, MOV 등 원본 파일을 드래그하여 업로드하세요.",
+      step2: "구간 및 모드 설정",
+      step2Desc: "AI 분석 또는 수동 설정을 통해 자연스러운 연결 지점을 찾으세요.",
+      step3: "변환 및 다운로드",
+      step3Desc: "고화질(MP4) 또는 움짤(GIF)로 즉시 변환하여 저장하세요."
     },
     ad: {
       label: "광고 (Advertisement)"
@@ -87,8 +97,9 @@ export const translations = {
   en: {
     nav: {
       home: "Home",
-      about: "About Us",
-      blog: "Loop Guide",
+      howTo: "How to Use",
+      guide: "Loop Guide",
+      faq: "FAQ",
       contact: "Contact",
       privacy: "Privacy Policy",
       terms: "Terms of Service"
@@ -97,6 +108,15 @@ export const translations = {
       title: "Seamless Loop Master",
       subtitle: "The ultimate tool for creating infinite loop videos for social media marketing.",
       footer: "© 2024 Seamless Loop Master. All rights reserved. Secure browser-based processing."
+    },
+    howto: {
+      title: "Perfect Loops in 3 Steps",
+      step1: "Upload Video",
+      step1Desc: "Drag and drop your MP4, MOV source files.",
+      step2: "Configure Loop",
+      step2Desc: "Use AI analysis or manual settings to find the sweet spot.",
+      step3: "Convert & Save",
+      step3Desc: "Export as high-quality MP4 or GIF instantly."
     },
     ad: {
       label: "Advertisement"
