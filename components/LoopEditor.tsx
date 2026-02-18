@@ -3,7 +3,7 @@ import { TrimState, LoopSettings, LoopMode, AspectRatio } from '../types';
 import { Timeline } from './Timeline';
 import { Button } from './Button';
 import { formatTime } from '../utils/format';
-import { Play, Pause, Video, FileVideo, Settings2, Loader2, Wand2, Repeat, RotateCcw, Eye, MonitorPlay, Square, RectangleHorizontal, RectangleVertical, Maximize, Zap } from 'lucide-react';
+import { Play, Pause, Video, FileVideo, Settings2, Loader2, Wand2, Repeat, RotateCcw, Eye, MonitorPlay, Square, RectangleHorizontal, RectangleVertical, Maximize, Zap, Sparkles } from 'lucide-react';
 import { DEFAULT_FADE_DURATION } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -79,8 +79,8 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
   
   // 1. Seamless Loop (Canvas)
   const renderSeamlessFrame = () => {
-    const v1 = videoRef.current;
-    const v2 = video2Ref.current;
+    const v1 = videoRef.current; // Acts as Tail (E-d to E) during transition
+    const v2 = video2Ref.current; // Acts as Head (S to S+d) and Body
     const cvs = canvasRef.current;
     if (!v1 || !v2 || !cvs) return;
     const ctx = cvs.getContext('2d');
@@ -112,7 +112,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     const rawTime = (now - startTimeRef.current) / 1000;
 
     if (loopMode === 'boomerang') {
-      // Type C: Boomerang (No fade applied here as per logic)
+      // Type C: Boomerang
       const oneWayDur = end - start;
       const cycleDur = oneWayDur * 2;
       const t = rawTime % cycleDur;
@@ -129,9 +129,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       ctx.drawImage(v1, offsetX, offsetY, drawW, drawH);
 
     } else {
-      // Type A & B: Crossfade / Optimal
-      // Core Logic: Dynamic Fade Anchoring
-      // The fade-out must begin precisely at: [End_Point] - [Fade_Duration]
+      // Type A & B: Soft-Linear Crossfade (Zero-Glitch Logic)
       const loopLen = (end - start) - fadeDuration;
       
       if (loopLen <= 0) {
@@ -142,45 +140,59 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
       const t = rawTime % loopLen;
 
-      // Base (Head): Starts at [Start_Point]
-      const v1Target = start + t;
-      
-      // Overlay (Tail): Starts at [End_Point] - [Fade_Duration]
-      // This ensures the crossfade is always relative to the current 'end' marker.
-      const v2Target = (end - fadeDuration) + t;
-
-      if (Math.abs(v1.currentTime - v1Target) > 0.2) v1.currentTime = v1Target;
-      if (Math.abs(v2.currentTime - v2Target) > 0.2 && t < fadeDuration) v2.currentTime = v2Target;
-
-      ctx.globalAlpha = 1.0;
-      ctx.drawImage(v1, offsetX, offsetY, drawW, drawH);
-
-      // Micro-Crossfade Logic:
-      // At t=0, we display the Overlay (Tail) at 100% opacity.
-      // Tail frame corresponds to 'end - fadeDuration'.
-      // As t increases, Overlay fades out, revealing Base (Head) which starts at 'start'.
       if (t < fadeDuration) {
-        const alpha = 1 - (t / fadeDuration);
+        // [Transition Phase]
+        // v1 (Tail) plays from E-d to E
+        // v2 (Head) plays from S to S+d
+        // We overlay v2 (Head) on top of v1 (Tail) fading in.
+        
+        const tailTime = (end - fadeDuration) + t;
+        const headTime = start + t;
+
+        if (Math.abs(v1.currentTime - tailTime) > 0.2) v1.currentTime = tailTime;
+        if (Math.abs(v2.currentTime - headTime) > 0.2) v2.currentTime = headTime;
+
+        // Draw Bottom (Tail) - Full Opacity
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(v1, offsetX, offsetY, drawW, drawH);
+
+        // Draw Top (Head) - Fading In (0 -> 1)
+        const alpha = t / fadeDuration;
         ctx.globalAlpha = alpha;
         ctx.drawImage(v2, offsetX, offsetY, drawW, drawH);
+        
+      } else {
+        // [Body Phase]
+        // v2 continues from Head into Body (S+d to E-d)
+        // v1 is pre-seeked to E-d to be ready for the next loop start
+        
+        const bodyTime = start + t;
+        if (Math.abs(v2.currentTime - bodyTime) > 0.2) v2.currentTime = bodyTime;
+
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(v2, offsetX, offsetY, drawW, drawH);
+        
+        // Optimization: Ensure v1 is ready at E-d for the instant the loop restarts
+        const readyTime = end - fadeDuration;
+        if (Math.abs(v1.currentTime - readyTime) > 0.5) {
+             v1.currentTime = readyTime;
+             v1.pause(); // Pause to hold frame
+        }
       }
     }
     
     requestRef.current = requestAnimationFrame(renderSeamlessFrame);
   };
 
-  // 2. Original Hard Cut (Video Element)
+  // 2. Original Hard Cut (Decoupled Player)
   const renderOriginalFrame = () => {
+    // In Original View, we just let the video element play naturally.
+    // No manual time manipulation needed unless we want to force loop of the whole file.
     const v1 = videoRef.current;
-    if (!v1) return;
-    
-    // Manual Looping Logic for "Original" view
-    if (v1.currentTime >= trim.end) {
-      v1.currentTime = trim.start;
-    } else if (v1.currentTime < trim.start) {
-        v1.currentTime = trim.start;
+    if (v1 && v1.ended) {
+        v1.currentTime = 0;
+        v1.play();
     }
-    
     requestRef.current = requestAnimationFrame(renderOriginalFrame);
   };
 
@@ -203,8 +215,17 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     } else {
       setIsPlaying(true);
       startTimeRef.current = performance.now();
-      videoRef.current?.play();
-      if (viewMode === 'preview') video2Ref.current?.play();
+      
+      if (viewMode === 'original') {
+         // Start from beginning if at end, or continue
+         if(videoRef.current?.ended) videoRef.current.currentTime = 0;
+         videoRef.current?.play();
+      } else {
+         // Preview mode logic manages play state inside render loop usually, 
+         // but we need to trigger play to unlock frames
+         videoRef.current?.play();
+         video2Ref.current?.play();
+      }
       
       if (viewMode === 'preview') {
           requestRef.current = requestAnimationFrame(renderSeamlessFrame);
@@ -221,6 +242,11 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     if (requestRef.current) cancelAnimationFrame(requestRef.current);
     videoRef.current?.pause();
     video2Ref.current?.pause();
+    
+    // When entering original mode, show full video
+    if (viewMode === 'original' && videoRef.current) {
+        videoRef.current.currentTime = 0;
+    }
 
     // Visibility handled in render
   }, [viewMode]);
@@ -288,8 +314,6 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       let bestDiff = Infinity;
       let bestFade = settings.fadeDuration;
 
-      // Scan backwards from End to find best matching 'offset' (fade duration)
-      // This logic effectively aligns [End_Point - Offset] with [Start_Point]
       for (let offset = 0.1; offset <= searchWindow; offset += step) {
         const checkTime = trim.end - offset;
         v.currentTime = checkTime;
@@ -370,7 +394,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       
       // 1. Construct Scale Filter
       let scaleFilter = '';
-      let sourceLabel = '[0:v]'; // Default source
+      let sourceLabel = '[0:v]'; 
       
       if (aspectRatio !== 'original') {
           const { width, height } = getTargetDimensions(aspectRatio, videoRef.current!.videoWidth, videoRef.current!.videoHeight);
@@ -385,7 +409,6 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       
       if (loopMode === 'boomerang') {
         // Boomerang: trim -> split -> reverse -> concat
-        // Type C: No fade applied
         loopFilter = [
           `${sourceLabel}trim=start=${start}:end=${end},setpts=PTS-STARTPTS[fwd]`,
           `[fwd]split[fwd1][fwd2]`,
@@ -393,30 +416,34 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
           `[fwd1][rev]concat=n=2:v=1:a=0[base_out]`
         ].join(';');
       } else {
-        // Type A & B: Dynamic Crossfade Anchoring
-        // Core Logic:
-        // [Base] = Start to End-Fade
-        // [Tail] = End-Fade to End
-        // We overlay [Tail] (fading out) onto [Base] (Head section)
+        // Type A & B: Soft-Linear Crossfade (xfade)
+        // We trim the source into three parts:
+        // 1. Head: S to S+d (will be overlaid)
+        // 2. Body: S+d to E-d (middle part)
+        // 3. Tail: E-d to E (will be overlaying)
+        // xfade transition: Tail fades into Head.
+        // Result: [Transition(Tail->Head)] + [Body]
+        
+        const d = fadeDuration;
+        
         loopFilter = [
-          // Extract Base (Start to End-Fade) and Tail (End-Fade to End)
-          // Uses dynamic 'start' and 'end' values from user selection/analysis
-          `${sourceLabel}trim=start=${start}:end=${end - fadeDuration},setpts=PTS-STARTPTS[base]`,
-          `${sourceLabel}trim=start=${end - fadeDuration}:end=${end},setpts=PTS-STARTPTS[tail]`,
-          
-          // Split Base into Head (where overlap happens) and Body
-          `[base]split[base_head][base_body]`,
-          `[base_head]trim=start=0:end=${fadeDuration},setpts=PTS-STARTPTS[head]`,
-          `[base_body]trim=start=${fadeDuration},setpts=PTS-STARTPTS[body]`,
-          
-          // Apply Fade Out to Tail (Alpha 1 -> 0)
-          `[tail]format=yuva420p,fade=t=out:st=0:d=${fadeDuration}:alpha=1[faded_tail]`,
-          
-          // Overlay Faded Tail onto Head (Head is opaque background)
-          `[head][faded_tail]overlay[merged_head]`,
-          
-          // Concatenate
-          `[merged_head][body]concat=n=2:v=1:a=0[base_out]`
+            `${sourceLabel}split=3[in1][in2][in3]`,
+            
+            // Tail (E-d to E)
+            `[in1]trim=start=${end - d}:end=${end},setpts=PTS-STARTPTS[tail]`,
+            
+            // Head (S to S+d)
+            `[in2]trim=start=${start}:end=${start + d},setpts=PTS-STARTPTS[head]`,
+            
+            // Body (S+d to E-d)
+            `[in3]trim=start=${start + d}:end=${end - d},setpts=PTS-STARTPTS[body]`,
+            
+            // Crossfade Tail to Head
+            // This creates the seamless loop junction
+            `[tail][head]xfade=transition=fade:duration=${d}:offset=0[trans]`,
+            
+            // Concat Transition + Body
+            `[trans][body]concat=n=2:v=1:a=0[base_out]`
         ].join(';');
       }
 
@@ -427,7 +454,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
         '-i', 'input.mp4',
         '-filter_complex', fullFilter,
         '-map', '[base_out]',
-        '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+        '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', // High quality encoding
         intermediateFile
       ]);
 
@@ -514,18 +541,19 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
         {/* Video/Canvas Display */}
         <div className="relative bg-black w-full rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 flex items-center justify-center group" style={{ height: '50vh' }}>
-            {/* Raw Video for Original Mode */}
+            {/* Raw Video for Original Mode - Playing Full File */}
             <video 
                 ref={videoRef} 
                 src={videoSrc} 
                 className="w-full h-full object-contain"
                 style={{ display: viewMode === 'original' ? 'block' : 'none' }}
                 muted 
-                playsInline 
+                playsInline
+                loop 
                 onLoadedMetadata={onLoadedMetadata} 
             />
             
-            {/* Hidden Reference Video */}
+            {/* Hidden Reference Video for Dual Stream Crossfade */}
             <video 
                 ref={video2Ref} 
                 src={videoSrc} 
@@ -704,6 +732,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                  <div className="flex items-center justify-center p-2 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium animate-pulse">
                     <Zap className="w-3 h-3 mr-1.5" />
                     {t.editor.autoFadeActive}
+                 </div>
+             )}
+
+             {/* Anti-Glitch Active Indicator */}
+             {settings.loopMode !== 'boomerang' && (
+                 <div className="flex items-center justify-center p-2 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium">
+                    <Sparkles className="w-3 h-3 mr-1.5" />
+                    {t.editor.antiGlitchActive}
                  </div>
              )}
           </div>
