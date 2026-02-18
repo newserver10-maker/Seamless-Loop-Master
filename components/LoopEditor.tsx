@@ -323,21 +323,26 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
   const loadFFmpeg = async () => {
     if (ffmpegRef.current) return ffmpegRef.current;
-    if (!window.FFmpeg) throw new Error("FFmpeg not loaded");
+    if (!window.FFmpeg) throw new Error("FFmpeg script not loaded. Check internet connection.");
 
-    const ffmpeg = new window.FFmpeg.FFmpeg();
-    ffmpegRef.current = ffmpeg;
+    try {
+        const ffmpeg = new window.FFmpeg.FFmpeg();
+        ffmpegRef.current = ffmpeg;
+        
+        ffmpeg.on('log', ({ message }: { message: string }) => console.log('FFmpeg Log:', message));
+        ffmpeg.on('progress', ({ progress }: { progress: number }) => setProgress(Math.round(progress * 100)));
     
-    ffmpeg.on('log', ({ message }: { message: string }) => console.log(message));
-    ffmpeg.on('progress', ({ progress }: { progress: number }) => setProgress(Math.round(progress * 100)));
-
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-    await ffmpeg.load({
-      coreURL: await window.FFmpegUtil.toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await window.FFmpegUtil.toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
-
-    return ffmpeg;
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        await ffmpeg.load({
+          coreURL: await window.FFmpegUtil.toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await window.FFmpegUtil.toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+    
+        return ffmpeg;
+    } catch (err) {
+        console.error("FFmpeg Load Error:", err);
+        throw new Error("FFmpeg 초기화 실패. 브라우저가 SharedArrayBuffer를 지원하지 않거나 보안 헤더가 누락되었습니다.");
+    }
   };
 
   const handleExport = async (format: 'mp4' | 'gif') => {
@@ -446,10 +451,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       setProgressMsg('완료!');
       setTimeout(() => setIsProcessing(false), 2000);
 
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      setProgressMsg('오류가 발생했습니다.');
-      setTimeout(() => setIsProcessing(false), 3000);
+      let errMsg = '오류가 발생했습니다.';
+      if (e.message && e.message.includes("SharedArrayBuffer")) {
+          errMsg = '보안 오류: 헤더 설정이 필요합니다. (COOP/COEP)';
+      }
+      setProgressMsg(errMsg);
+      setTimeout(() => setIsProcessing(false), 4000);
     }
   };
 
