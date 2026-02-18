@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Upload } from 'lucide-react';
 import { Button } from './Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface VideoUploaderProps {
   onFileSelect: (file: File) => void;
@@ -8,6 +9,7 @@ interface VideoUploaderProps {
 
 export const VideoUploader: React.FC<VideoUploaderProps> = ({ onFileSelect }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -22,7 +24,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({ onFileSelect }) =>
        if (e.dataTransfer.files[0].type.startsWith('video/')) {
          onFileSelect(e.dataTransfer.files[0]);
        } else {
-         alert('동영상 파일만 업로드 가능합니다.');
+         alert(t.uploader.error);
        }
     }
   };
@@ -38,8 +40,8 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({ onFileSelect }) =>
         <Upload className="w-10 h-10 text-blue-400" />
       </div>
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-white">동영상 업로드</h2>
-        <p className="text-gray-400">MP4, MOV, WebM 파일을 드래그하거나 클릭하여 선택하세요</p>
+        <h2 className="text-2xl font-bold text-white">{t.uploader.title}</h2>
+        <p className="text-gray-400">{t.uploader.desc}</p>
       </div>
       <input 
         ref={inputRef}
@@ -48,7 +50,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({ onFileSelect }) =>
         className="hidden" 
         onChange={handleFileChange}
       />
-      <Button>파일 선택하기</Button>
+      <Button>{t.uploader.btn}</Button>
     </div>
   );
 };

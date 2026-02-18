@@ -5,6 +5,7 @@ import { Button } from './Button';
 import { formatTime } from '../utils/format';
 import { Play, Pause, Video, FileVideo, Settings2, Loader2, Wand2, Repeat, RotateCcw, Eye, MonitorPlay, Square, RectangleHorizontal, RectangleVertical, Maximize, Zap } from 'lucide-react';
 import { DEFAULT_FADE_DURATION } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface LoopEditorProps {
   file: File;
@@ -29,6 +30,7 @@ const getTargetDimensions = (ratio: AspectRatio, originalW: number, originalH: n
 export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
   // Video Source
   const [videoSrc, setVideoSrc] = useState<string>('');
+  const { t } = useLanguage();
   
   // State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -110,7 +112,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     const rawTime = (now - startTimeRef.current) / 1000;
 
     if (loopMode === 'boomerang') {
-      // Type C: Boomerang
+      // Type C: Boomerang (No fade applied here as per logic)
       const oneWayDur = end - start;
       const cycleDur = oneWayDur * 2;
       const t = rawTime % cycleDur;
@@ -128,6 +130,8 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
     } else {
       // Type A & B: Crossfade / Optimal
+      // Core Logic: Dynamic Fade Anchoring
+      // The fade-out must begin precisely at: [End_Point] - [Fade_Duration]
       const loopLen = (end - start) - fadeDuration;
       
       if (loopLen <= 0) {
@@ -138,9 +142,11 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
       const t = rawTime % loopLen;
 
-      // Base (Head)
+      // Base (Head): Starts at [Start_Point]
       const v1Target = start + t;
-      // Overlay (Tail)
+      
+      // Overlay (Tail): Starts at [End_Point] - [Fade_Duration]
+      // This ensures the crossfade is always relative to the current 'end' marker.
       const v2Target = (end - fadeDuration) + t;
 
       if (Math.abs(v1.currentTime - v1Target) > 0.2) v1.currentTime = v1Target;
@@ -150,8 +156,9 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       ctx.drawImage(v1, offsetX, offsetY, drawW, drawH);
 
       // Micro-Crossfade Logic:
-      // We overlay the "Tail" (End of clip) onto the "Head" (Start of clip)
-      // The Tail fades out from 1.0 to 0.0 opacity over `fadeDuration`.
+      // At t=0, we display the Overlay (Tail) at 100% opacity.
+      // Tail frame corresponds to 'end - fadeDuration'.
+      // As t increases, Overlay fades out, revealing Base (Head) which starts at 'start'.
       if (t < fadeDuration) {
         const alpha = 1 - (t / fadeDuration);
         ctx.globalAlpha = alpha;
@@ -259,7 +266,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     if (!videoRef.current || !canvasRef.current) return;
     
     setIsProcessing(true);
-    setProgressMsg('초정밀 구간 분석 중 (Type B)...');
+    setProgressMsg(t.editor.procAnal);
     
     const v = videoRef.current;
     const ctx = canvasRef.current.getContext('2d', { willReadFrequently: true });
@@ -281,6 +288,8 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       let bestDiff = Infinity;
       let bestFade = settings.fadeDuration;
 
+      // Scan backwards from End to find best matching 'offset' (fade duration)
+      // This logic effectively aligns [End_Point - Offset] with [Start_Point]
       for (let offset = 0.1; offset <= searchWindow; offset += step) {
         const checkTime = trim.end - offset;
         v.currentTime = checkTime;
@@ -309,11 +318,11 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       }
 
       setSettings(s => ({ ...s, fadeDuration: bestFade, isAutoFade: false, loopMode: 'optimal' }));
-      setProgressMsg(`분석 완료! 최적 오버랩: ${bestFade.toFixed(2)}초`);
+      setProgressMsg(t.editor.procAnalDone.replace('{time}', bestFade.toFixed(2)));
       
     } catch (e) {
       console.error(e);
-      setProgressMsg('분석 실패');
+      setProgressMsg(t.editor.procAnalFail);
     } finally {
       v.currentTime = trim.start;
       setIsProcessing(false);
@@ -349,11 +358,11 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     try {
       setIsProcessing(true);
       setProgress(0);
-      setProgressMsg('FFmpeg 엔진 준비 중...');
+      setProgressMsg(t.editor.procInit);
       
       const ffmpeg = await loadFFmpeg();
       
-      setProgressMsg('데이터 처리 중...');
+      setProgressMsg(t.editor.procData);
       await ffmpeg.writeFile('input.mp4', await window.FFmpegUtil.fetchFile(videoSrc));
 
       const { start, end } = trim;
@@ -376,6 +385,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       
       if (loopMode === 'boomerang') {
         // Boomerang: trim -> split -> reverse -> concat
+        // Type C: No fade applied
         loopFilter = [
           `${sourceLabel}trim=start=${start}:end=${end},setpts=PTS-STARTPTS[fwd]`,
           `[fwd]split[fwd1][fwd2]`,
@@ -383,16 +393,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
           `[fwd1][rev]concat=n=2:v=1:a=0[base_out]`
         ].join(';');
       } else {
-        // Crossfade / Micro-Crossfade
-        // Robust Logic: 
-        // 1. Base Head (Start to Fade)
-        // 2. Base Body (Fade to End-Fade)
-        // 3. Tail (End-Fade to End) -> Faded Out (Alpha 1->0)
-        // 4. Overlay Tail on Head -> Merged Head
-        // 5. Concat Merged Head + Body
-        
+        // Type A & B: Dynamic Crossfade Anchoring
+        // Core Logic:
+        // [Base] = Start to End-Fade
+        // [Tail] = End-Fade to End
+        // We overlay [Tail] (fading out) onto [Base] (Head section)
         loopFilter = [
           // Extract Base (Start to End-Fade) and Tail (End-Fade to End)
+          // Uses dynamic 'start' and 'end' values from user selection/analysis
           `${sourceLabel}trim=start=${start}:end=${end - fadeDuration},setpts=PTS-STARTPTS[base]`,
           `${sourceLabel}trim=start=${end - fadeDuration}:end=${end},setpts=PTS-STARTPTS[tail]`,
           
@@ -414,7 +422,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
       const fullFilter = scaleFilter + loopFilter;
 
-      setProgressMsg('루프 구간 렌더링 중...');
+      setProgressMsg(t.editor.procRender);
       await ffmpeg.exec([
         '-i', 'input.mp4',
         '-filter_complex', fullFilter,
@@ -425,7 +433,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
       const finalFile = format === 'mp4' ? 'final_output.mp4' : 'final_output.gif';
       
-      setProgressMsg(`최종 파일 병합 중 (${loopCount}회 반복)...`);
+      setProgressMsg(t.editor.procMerge.replace('{count}', loopCount.toString()));
       const loopCmdArgs = ['-stream_loop', (loopCount - 1).toString(), '-i', intermediateFile];
       
       if (format === 'mp4') {
@@ -448,14 +456,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       const url = URL.createObjectURL(new Blob([data], { type: blobType }));
       downloadFile(url, `seamless_loop_${loopMode}.${format}`);
 
-      setProgressMsg('완료!');
+      setProgressMsg(t.editor.procDone);
       setTimeout(() => setIsProcessing(false), 2000);
 
     } catch (e: any) {
       console.error(e);
-      let errMsg = '오류가 발생했습니다.';
+      let errMsg = t.editor.procErr;
       if (e.message && e.message.includes("SharedArrayBuffer")) {
-          errMsg = '보안 오류: 헤더 설정이 필요합니다. (COOP/COEP)';
+          errMsg = t.editor.procSecErr;
       }
       setProgressMsg(errMsg);
       setTimeout(() => setIsProcessing(false), 4000);
@@ -481,8 +489,8 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
     <div className="flex flex-col h-full w-full max-w-5xl mx-auto p-4 gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} size="sm">← 뒤로가기</Button>
-        <h1 className="text-xl font-bold text-gray-100">심리스 루프 마스터 Pro</h1>
+        <Button variant="ghost" onClick={onBack} size="sm">{t.editor.back}</Button>
+        <h1 className="text-xl font-bold text-gray-100">{t.editor.title}</h1>
         <div className="w-20"></div>
       </div>
 
@@ -494,13 +502,13 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                 onClick={() => setViewMode('preview')}
                 className={`flex items-center px-6 py-2 rounded-full font-medium transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
             >
-                <Eye className="w-4 h-4 mr-2" /> 미리보기 (Seamless)
+                <Eye className="w-4 h-4 mr-2" /> {t.editor.preview}
             </button>
             <button
                 onClick={() => setViewMode('original')}
                 className={`flex items-center px-6 py-2 rounded-full font-medium transition-all ${viewMode === 'original' ? 'bg-gray-200 text-black shadow-lg' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
             >
-                <MonitorPlay className="w-4 h-4 mr-2" /> 원본 보기 (Hard Cut)
+                <MonitorPlay className="w-4 h-4 mr-2" /> {t.editor.original}
             </button>
         </div>
 
@@ -546,14 +554,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
 
       <div className="flex justify-center -mt-2">
          <Button onClick={togglePlay} size="lg" className="w-32 shadow-lg">
-            {isPlaying ? <><Pause className="w-5 h-5 mr-2" /> 정지</> : <><Play className="w-5 h-5 mr-2" /> 재생</>}
+            {isPlaying ? <><Pause className="w-5 h-5 mr-2" /> {t.editor.pause}</> : <><Play className="w-5 h-5 mr-2" /> {t.editor.play}</>}
          </Button>
       </div>
 
       {/* Aspect Ratio Selection */}
       <div className="bg-[#1e1e1e] p-6 rounded-xl space-y-4 shadow-lg border border-white/5">
         <h3 className="text-sm font-semibold text-gray-300 flex items-center">
-            <Maximize className="w-4 h-4 mr-2" /> 화면 비율 설정
+            <Maximize className="w-4 h-4 mr-2" /> {t.editor.aspectRatio}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
              <button
@@ -561,28 +569,28 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all ${settings.aspectRatio === 'original' ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
              >
                 <Maximize className="w-6 h-6 mb-2 text-gray-300" />
-                <span className="text-sm font-medium">원본 비율 유지</span>
+                <span className="text-sm font-medium">{t.editor.arOriginal}</span>
              </button>
              <button
                 onClick={() => setSettings(s => ({...s, aspectRatio: '16:9'}))}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all ${settings.aspectRatio === '16:9' ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
              >
                 <RectangleHorizontal className="w-6 h-6 mb-2 text-gray-300" />
-                <span className="text-sm font-medium">16:9 와이드</span>
+                <span className="text-sm font-medium">{t.editor.ar169}</span>
              </button>
              <button
                 onClick={() => setSettings(s => ({...s, aspectRatio: '1:1'}))}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all ${settings.aspectRatio === '1:1' ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
              >
                 <Square className="w-6 h-6 mb-2 text-gray-300" />
-                <span className="text-sm font-medium">1:1 정방형</span>
+                <span className="text-sm font-medium">{t.editor.ar11}</span>
              </button>
              <button
                 onClick={() => setSettings(s => ({...s, aspectRatio: '9:16'}))}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all ${settings.aspectRatio === '9:16' ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
              >
                 <RectangleVertical className="w-6 h-6 mb-2 text-gray-300" />
-                <span className="text-sm font-medium">9:16 세로형</span>
+                <span className="text-sm font-medium">{t.editor.ar916}</span>
              </button>
         </div>
       </div>
@@ -590,15 +598,15 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       {/* Mode Selection */}
       <div className="bg-[#1e1e1e] p-6 rounded-xl space-y-4 shadow-lg border border-white/5">
         <h3 className="text-sm font-semibold text-gray-300 flex items-center">
-            <RotateCcw className="w-4 h-4 mr-2" /> 루프 모드 선택
+            <RotateCcw className="w-4 h-4 mr-2" /> {t.editor.loopMode}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button 
                 onClick={() => setSettings(s => ({...s, loopMode: 'crossfade'}))}
                 className={`p-4 rounded-lg border text-left transition-all ${settings.loopMode === 'crossfade' ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
             >
-                <div className="font-bold text-white mb-1">강제 오버랩 (A타입)</div>
-                <div className="text-xs text-gray-400">사용자가 설정한 구간을 강제로 부드럽게 연결합니다.</div>
+                <div className="font-bold text-white mb-1">{t.editor.modeA}</div>
+                <div className="text-xs text-gray-400">{t.editor.modeADesc}</div>
             </button>
 
             <button 
@@ -606,18 +614,18 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                 className={`p-4 rounded-lg border text-left transition-all ${settings.loopMode === 'optimal' ? 'bg-purple-900/30 border-purple-500 ring-1 ring-purple-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
             >
                 <div className="flex items-center justify-between font-bold text-white mb-1">
-                    <span>초정밀 분석 (B타입)</span>
+                    <span>{t.editor.modeB}</span>
                     <Wand2 className="w-4 h-4 text-purple-400" />
                 </div>
-                <div className="text-xs text-gray-400">프레임 단위 정밀 분석으로 최적의 연결 지점을 찾습니다.</div>
+                <div className="text-xs text-gray-400">{t.editor.modeBDesc}</div>
             </button>
 
             <button 
                 onClick={() => setSettings(s => ({...s, loopMode: 'boomerang'}))}
                 className={`p-4 rounded-lg border text-left transition-all ${settings.loopMode === 'boomerang' ? 'bg-green-900/30 border-green-500 ring-1 ring-green-500' : 'bg-black/20 border-gray-700 hover:border-gray-500'}`}
             >
-                <div className="font-bold text-white mb-1">역재생 루프 (C타입)</div>
-                <div className="text-xs text-gray-400">앞뒤로 반복 재생하여 자연스러운 움직임을 만듭니다.</div>
+                <div className="font-bold text-white mb-1">{t.editor.modeC}</div>
+                <div className="text-xs text-gray-400">{t.editor.modeCDesc}</div>
             </button>
         </div>
       </div>
@@ -626,14 +634,14 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
       <div className="bg-[#1e1e1e] p-6 rounded-xl space-y-4 shadow-lg border border-white/5">
         <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-semibold text-gray-300 flex items-center">
-                <Settings2 className="w-4 h-4 mr-2" /> 구간 정밀 편집
+                <Settings2 className="w-4 h-4 mr-2" /> {t.editor.timeline}
             </h3>
         </div>
         <Timeline trim={trim} onTrimChange={updateTrim} currentTime={trim.start} />
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
            <div className="col-span-2 flex items-center justify-between bg-black/20 p-2.5 rounded-lg border border-white/5">
-              <span className="text-xs font-medium text-gray-400 ml-1">시작점</span>
+              <span className="text-xs font-medium text-gray-400 ml-1">{t.editor.start}</span>
               <div className="flex gap-1">
                  <Button variant="secondary" size="sm" onClick={() => updateTrim(trim.start - 0.01, trim.end)}>-0.01</Button>
                  <Button variant="secondary" size="sm" onClick={() => updateTrim(trim.start - 0.1, trim.end)}>-0.1</Button>
@@ -642,7 +650,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
               </div>
            </div>
            <div className="col-span-2 flex items-center justify-between bg-black/20 p-2.5 rounded-lg border border-white/5">
-              <span className="text-xs font-medium text-gray-400 ml-1">종료점</span>
+              <span className="text-xs font-medium text-gray-400 ml-1">{t.editor.end}</span>
               <div className="flex gap-1">
                  <Button variant="secondary" size="sm" onClick={() => updateTrim(trim.start, trim.end - 0.01)}>-0.01</Button>
                  <Button variant="secondary" size="sm" onClick={() => updateTrim(trim.start, trim.end - 0.1)}>-0.1</Button>
@@ -658,16 +666,16 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
           {/* Fade Control */}
           <div className={`bg-[#1e1e1e] p-6 rounded-xl space-y-4 shadow-lg border border-white/5 ${settings.loopMode === 'boomerang' ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
              <div className="flex justify-between items-center">
-                 <h3 className="text-sm font-semibold text-gray-300">페이드(겹침) 시간</h3>
+                 <h3 className="text-sm font-semibold text-gray-300">{t.editor.fade}</h3>
                  {settings.loopMode !== 'boomerang' && (
                     <div className="flex items-center space-x-2">
                         {settings.fadeDuration > 0 && (
                              <span className="flex items-center text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30 mr-2">
-                                <Zap className="w-3 h-3 mr-1 fill-current" /> 부드러운 루프 적용됨
+                                <Zap className="w-3 h-3 mr-1 fill-current" /> {t.editor.fadeApplied}
                              </span>
                         )}
                         <span className="text-xs text-gray-500">
-                            {settings.isAutoFade ? '자동' : '수동'}
+                            {settings.isAutoFade ? t.editor.auto : t.editor.manual}
                         </span>
                         <button 
                         onClick={() => setSettings(s => ({...s, isAutoFade: !s.isAutoFade}))}
@@ -690,13 +698,21 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                     className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
              </div>
+             
+             {/* Auto-Fade Status Indicator for Type B or Auto mode */}
+             {(settings.loopMode === 'optimal' || settings.isAutoFade) && (
+                 <div className="flex items-center justify-center p-2 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium animate-pulse">
+                    <Zap className="w-3 h-3 mr-1.5" />
+                    {t.editor.autoFadeActive}
+                 </div>
+             )}
           </div>
 
           {/* Loop Count */}
           <div className="bg-[#1e1e1e] p-6 rounded-xl space-y-4 shadow-lg border border-white/5">
              <div className="flex justify-between items-center">
                  <h3 className="text-sm font-semibold text-gray-300 flex items-center">
-                    <Repeat className="w-4 h-4 mr-2" /> 반복 횟수 (Loop Count)
+                    <Repeat className="w-4 h-4 mr-2" /> {t.editor.loopCount}
                  </h3>
              </div>
              <div className="flex items-center justify-between gap-4">
@@ -712,9 +728,9 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
                      >+</button>
                  </div>
                  <div className="text-right">
-                     <div className="text-xs text-gray-500 mb-1">최종 영상 길이</div>
+                     <div className="text-xs text-gray-500 mb-1">{t.editor.finalDuration}</div>
                      <div className="text-xl font-mono text-blue-400">
-                        {formatTime(totalDuration)} 초
+                        {formatTime(totalDuration)}
                      </div>
                  </div>
              </div>
@@ -729,7 +745,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
             className="h-14 text-lg bg-indigo-600 hover:bg-indigo-700"
             icon={isProcessing ? <Loader2 className="animate-spin" /> : <Video />}
          >
-            MP4 저장
+            {t.editor.saveMp4}
          </Button>
          <Button 
             disabled={isProcessing} 
@@ -737,7 +753,7 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
             className="h-14 text-lg bg-pink-600 hover:bg-pink-700"
             icon={isProcessing ? <Loader2 className="animate-spin" /> : <FileVideo />}
          >
-            GIF 저장
+            {t.editor.saveGif}
          </Button>
       </div>
 
@@ -746,11 +762,11 @@ export const LoopEditor: React.FC<LoopEditorProps> = ({ file, onBack }) => {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center">
             <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-6" />
             <h2 className="text-2xl font-bold text-white mb-2">{progressMsg}</h2>
-            <p className="text-gray-400 mb-6 text-sm font-mono">처리하는 동안 브라우저를 닫지 마세요</p>
+            <p className="text-gray-400 mb-6 text-sm font-mono">{t.editor.doNotClose}</p>
             {progress > 0 && (
                 <div className="w-80">
                     <div className="flex justify-between text-xs text-blue-300 mb-1">
-                        <span>진행률</span>
+                        <span>{t.editor.progress}</span>
                         <span>{progress}%</span>
                     </div>
                     <div className="h-2 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
