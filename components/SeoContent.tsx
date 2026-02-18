@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Cpu, TrendingUp, Layers, HelpCircle, CheckCircle2, Zap, BarChart, FileVideo, Settings, Download, Lightbulb, UserCheck, Target, Eye, ExternalLink } from 'lucide-react';
+import { BookOpen, Cpu, TrendingUp, HelpCircle, CheckCircle2, BarChart, FileVideo, Settings, Download, UserCheck, Target, Eye } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const SafeImage = ({ src, alt, className }: { src: string, alt: string, className?: string }) => {
@@ -78,7 +78,7 @@ export const SeoContent = () => {
           </div>
       </div>
       
-      {/* 2026 Trend Columns Section - Massive Update for AdSense (2000+ chars) */}
+      {/* 2026 Trend Columns Section */}
       <div id="column" className="space-y-12">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight">
@@ -143,13 +143,32 @@ export const SeoContent = () => {
                           <p className="text-sm text-gray-400 font-medium">탐색 탭을 장악하는<br/>심리스 트랜지션의 심리학</p>
                       </div>
                       <div className="md:col-span-8 prose prose-invert prose-lg text-gray-300">
-                           <div className="mb-8 rounded-2xl overflow-hidden md:float-right md:ml-8 md:w-1/2 border border-white/10 shadow-lg">
-                                <SafeImage 
-                                    src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=600&q=80" 
-                                    alt="Content Creation Setup" 
-                                    className="w-full h-auto" 
-                                />
-                                <p className="text-[10px] text-gray-500 p-2 bg-[#0a0a0a] text-center border-t border-white/5">Visual by Unsplash</p>
+                           {/* Instagram Reels Style Mockup with Cozy/Aesthetic Loop */}
+                           <div className="mb-8 md:float-right md:ml-8 md:w-[280px]">
+                               <div className="relative mx-auto border-gray-800 bg-gray-800 border-[8px] rounded-[2.5rem] h-[500px] w-full shadow-2xl flex flex-col overflow-hidden">
+                                    <div className="h-[24px] bg-gray-800 absolute top-0 left-0 right-0 z-20 rounded-t-[2rem]"></div>
+                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1/3 h-[18px] bg-black rounded-b-xl z-30"></div>
+                                    <video 
+                                        src="https://videos.pexels.com/video-files/5725964/5725964-hd_1080_1920_30fps.mp4" 
+                                        className="w-full h-full object-cover rounded-[1.8rem] bg-gray-900"
+                                        autoPlay 
+                                        muted 
+                                        loop 
+                                        playsInline 
+                                    />
+                                    {/* Mock UI Overlay */}
+                                    <div className="absolute bottom-6 left-4 right-4 z-10 flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[2px]">
+                                                <div className="w-full h-full rounded-full bg-black border-2 border-black"></div>
+                                            </div>
+                                            <span className="text-white text-xs font-bold drop-shadow-md">Daily_Vibes</span>
+                                        </div>
+                                        <div className="h-2 w-3/4 bg-white/20 rounded-full"></div>
+                                        <div className="h-2 w-1/2 bg-white/20 rounded-full"></div>
+                                    </div>
+                               </div>
+                               <p className="text-[10px] text-gray-500 mt-2 text-center">Simulated Reels Interface</p>
                            </div>
                           <p>
                               인스타그램 릴스는 '비주얼 만족감(Visual Satisfaction)'을 최우선 가치로 둡니다. 2026년 릴스 트렌드는 자극적이고 화려한 이펙트보다는 <strong>'편안함(Cozy)'</strong>과 <strong>'연속성(Continuity)'</strong>에 초점을 맞추고 있습니다. 이는 정보 과잉 시대에 사용자들이 숏폼 콘텐츠에서 오히려 휴식과 안정감을 찾으려 하기 때문입니다.

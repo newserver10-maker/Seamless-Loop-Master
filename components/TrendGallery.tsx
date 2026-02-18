@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Zap, Info, AlertCircle, Loader2, VideoOff } from 'lucide-react';
+import { Play, Zap, Info, Loader2, VideoOff } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface VideoItem {
   id: number;
   videoUrl: string;
-  posterUrl: string; // Add poster for better UX
+  posterUrl: string;
   title: string;
   creator: string;
   category: 'nature' | 'city' | 'abstract';
@@ -15,12 +15,13 @@ interface VideoItem {
   };
 }
 
-// Curated High-Reliability Sources (Pexels / Coverr)
-// Using standard MP4s that are widely cached
+// Curated High-Reliability Sources (Pexels Verified URLs)
+// Updated items 4, 5, 6 to stable vertical videos
 const TREND_VIDEOS: VideoItem[] = [
   {
     id: 1,
     category: 'nature',
+    // Forest/Leaves - High stability
     videoUrl: "https://videos.pexels.com/video-files/1536322/1536322-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/1536322/free-video-1536322.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Mystic Forest",
@@ -33,6 +34,7 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 2,
     category: 'abstract',
+    // Ink - High stability
     videoUrl: "https://videos.pexels.com/video-files/3163534/3163534-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/3163534/free-video-3163534.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Ink Flow",
@@ -45,6 +47,7 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 3,
     category: 'city',
+    // Traffic - High stability
     videoUrl: "https://videos.pexels.com/video-files/2053100/2053100-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/2053100/free-video-2053100.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Night Velocity",
@@ -57,37 +60,40 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 4,
     category: 'nature',
-    videoUrl: "https://videos.pexels.com/video-files/855018/855018-hd_1920_1080_30fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/855018/free-video-855018.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Infinite Waves",
+    // Ocean/Vertical - Replaced with reliable link
+    videoUrl: "https://videos.pexels.com/video-files/5091624/5091624-hd_1080_1920_24fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/5091624/free-video-5091624.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    title: "Vertical Waves",
     creator: "BlueMind",
     analysis: {
-      ko: "파도의 불규칙한 주기를 Type A 모드로 보정하고 오디오 레벨을 정규화하여 편안한 루프를 구현했습니다.",
-      en: "Corrected irregular wave cycles with Type A mode and normalized audio levels for a relaxing loop."
+      ko: "파도의 불규칙한 주기를 Type A 모드로 보정하고 오디오 레벨을 정규화하여 편안한 힐링 루프를 구현했습니다.",
+      en: "Corrected irregular wave cycles with Type A mode and normalized audio levels for a relaxing healing loop."
     }
   },
   {
     id: 5,
     category: 'abstract',
-    videoUrl: "https://videos.pexels.com/video-files/2603664/2603664-hd_1920_1080_30fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/2603664/free-video-2603664.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Cyber Rain",
+    // Neon/Abstract Vertical - Replaced with reliable link
+    videoUrl: "https://videos.pexels.com/video-files/3121459/3121459-hd_1080_1920_25fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/3121459/free-video-3121459.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    title: "Neon Tunnel",
     creator: "NeonFuture",
     analysis: {
-      ko: "빗줄기의 속도감을 유지하기 위해 페이드 시간을 0.2초로 짧게 설정, 스피디하고 역동적인 루프를 생성했습니다.",
-      en: "Set fade duration to 0.2s to maintain rain speed, creating a fast and dynamic loop."
+      ko: "빛의 이동 속도를 일정하게 유지하기 위해 페이드 시간을 0.2초로 짧게 설정, 몰입감 높은 무한 공간을 연출했습니다.",
+      en: "Set fade duration to 0.2s to maintain constant light speed, creating a highly immersive infinite space."
     }
   },
   {
     id: 6,
     category: 'city',
-    videoUrl: "https://videos.pexels.com/video-files/4109404/4109404-hd_1920_1080_25fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/4109404/free-video-4109404.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Morning Steam",
+    // Coffee/Vertical - Replaced with reliable link
+    videoUrl: "https://videos.pexels.com/video-files/3052281/3052281-hd_1080_1920_30fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/3052281/free-video-3052281.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    title: "Morning Pour",
     creator: "DailyLife",
     analysis: {
-      ko: "증기의 상승 패턴을 AI가 분석하여, 하단부는 고정하고 상단부만 자연스럽게 페이드되는 마스크 기법을 적용했습니다.",
-      en: "AI analyzed steam patterns, applying a mask technique to fade only the top while keeping the bottom static."
+      ko: "액체가 떨어지는 속도와 컵에 차오르는 높이를 계산하여, 루프 지점에서의 위화감을 최소화한 시네마그래프입니다.",
+      en: "A cinemagraph that minimizes dissonance at the loop point by calculating pouring speed and fill level."
     }
   }
 ];
@@ -99,7 +105,6 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const { language } = useLanguage();
 
-    // Lazy Load Implementation
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -119,7 +124,7 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
                     }
                 });
             },
-            { threshold: 0.4 } // Play when 40% visible
+            { threshold: 0.4 }
         );
 
         if (videoRef.current) {
@@ -139,52 +144,39 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
         setIsLoading(false);
     };
 
+    // Self-destruct logic: If error, hide the card to maintain gallery integrity
+    if (isError) return null;
+
     return (
-        <div className="group relative flex flex-col bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20 h-full">
-            {/* Video Container */}
+        <div className="group relative flex flex-col bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20 h-full animate-in fade-in zoom-in duration-500">
             <div className="relative aspect-[9/16] md:aspect-[4/5] overflow-hidden bg-black">
-                {!isError ? (
-                    <video
-                        ref={videoRef}
-                        src={item.videoUrl}
-                        poster={item.posterUrl}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                        onLoadedData={() => setIsLoading(false)}
-                        onError={handleError}
-                    />
-                ) : (
-                    // Fallback Gradient UI
-                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center p-4 text-center">
-                        <VideoOff className="w-10 h-10 text-gray-600 mb-2" />
-                        <span className="text-gray-500 text-xs font-medium uppercase tracking-widest">Preview Unavailable</span>
-                    </div>
-                )}
+                <video
+                    ref={videoRef}
+                    src={item.videoUrl}
+                    poster={item.posterUrl}
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    onLoadedData={() => setIsLoading(false)}
+                    onError={handleError}
+                />
                 
-                {/* Loading State */}
-                {isLoading && !isError && (
+                {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10">
                         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                     </div>
                 )}
 
-                
-                {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity pointer-events-none" />
 
-                {/* Status Indicator */}
-                {!isError && (
-                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1 z-20">
-                        {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
-                        <span>{isPlaying ? 'LIVE' : 'READY'}</span>
-                    </div>
-                )}
+                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1 z-20">
+                    {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
+                    <span>{isPlaying ? 'LIVE' : 'READY'}</span>
+                </div>
             </div>
 
-            {/* Content & Analysis */}
             <div className="p-5 flex flex-col flex-grow">
                 <div className="mb-4">
                     <h3 className="text-white font-bold text-lg mb-1">{item.title}</h3>
