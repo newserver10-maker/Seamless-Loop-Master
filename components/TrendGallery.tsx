@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Zap, Info, AlertCircle, Loader2 } from 'lucide-react';
+import { Play, Zap, Info, AlertCircle, Loader2, VideoOff } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface VideoItem {
   id: number;
   videoUrl: string;
-  fallbackUrl: string;
+  posterUrl: string; // Add poster for better UX
   title: string;
   creator: string;
   category: 'nature' | 'city' | 'abstract';
@@ -15,14 +15,14 @@ interface VideoItem {
   };
 }
 
-// Curated High-Quality Sources with Fallbacks (Pexels Stable Links)
+// Curated High-Reliability Sources (Pexels / Coverr)
+// Using standard MP4s that are widely cached
 const TREND_VIDEOS: VideoItem[] = [
   {
     id: 1,
     category: 'nature',
-    // Forest/Leaves
     videoUrl: "https://videos.pexels.com/video-files/1536322/1536322-hd_1920_1080_30fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/1536322/1536322-sd_640_360_30fps.mp4", 
+    posterUrl: "https://images.pexels.com/videos/1536322/free-video-1536322.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Mystic Forest",
     creator: "NatureVibe",
     analysis: {
@@ -33,10 +33,9 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 2,
     category: 'abstract',
-    // Abstract Ink/Pattern
-    videoUrl: "https://videos.pexels.com/video-files/2759484/2759484-hd_1920_1080_30fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/2759484/2759484-sd_640_360_30fps.mp4",
-    title: "Liquid Art",
+    videoUrl: "https://videos.pexels.com/video-files/3163534/3163534-hd_1920_1080_30fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/3163534/free-video-3163534.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    title: "Ink Flow",
     creator: "MotionLab",
     analysis: {
       ko: "마이크로 크로스페이드를 적용하여 기하학적 패턴의 색상 변화를 부드럽게 루프 처리, 시각적 몰입도를 높였습니다.",
@@ -46,9 +45,8 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 3,
     category: 'city',
-    // City Traffic
     videoUrl: "https://videos.pexels.com/video-files/2053100/2053100-hd_1920_1080_30fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/2053100/2053100-sd_640_360_30fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/2053100/free-video-2053100.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Night Velocity",
     creator: "UrbanLens",
     analysis: {
@@ -59,9 +57,8 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 4,
     category: 'nature',
-    // Water/Ocean
     videoUrl: "https://videos.pexels.com/video-files/855018/855018-hd_1920_1080_30fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/855018/855018-sd_640_360_30fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/855018/free-video-855018.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Infinite Waves",
     creator: "BlueMind",
     analysis: {
@@ -72,9 +69,8 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 5,
     category: 'abstract',
-    // Tech/Neon
     videoUrl: "https://videos.pexels.com/video-files/2603664/2603664-hd_1920_1080_30fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/2603664/2603664-sd_640_360_30fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/2603664/free-video-2603664.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Cyber Rain",
     creator: "NeonFuture",
     analysis: {
@@ -85,9 +81,8 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 6,
     category: 'city',
-    // Coffee/Cafe
     videoUrl: "https://videos.pexels.com/video-files/4109404/4109404-hd_1920_1080_25fps.mp4",
-    fallbackUrl: "https://videos.pexels.com/video-files/4109404/4109404-sd_640_360_25fps.mp4",
+    posterUrl: "https://images.pexels.com/videos/4109404/free-video-4109404.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Morning Steam",
     creator: "DailyLife",
     analysis: {
@@ -110,9 +105,8 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        if (videoRef.current) {
+                        if (videoRef.current && !isError) {
                             videoRef.current.play().catch(() => {
-                                // Autoplay might be blocked or low power mode
                                 setIsPlaying(false);
                             });
                             setIsPlaying(true);
@@ -137,59 +131,57 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
                 observer.unobserve(videoRef.current);
             }
         };
-    }, []);
+    }, [isError]);
 
     const handleError = () => {
-        if (videoRef.current && !isError) {
-            console.warn(`Video load error for ${item.title}, trying fallback...`);
-            setIsError(true);
-            // Fallback strategy
-            if (item.fallbackUrl && videoRef.current.src !== item.fallbackUrl) {
-                 videoRef.current.src = item.fallbackUrl;
-                 videoRef.current.load();
-            }
-        }
+        console.warn(`Video load error for ${item.title}`);
+        setIsError(true);
+        setIsLoading(false);
     };
 
     return (
-        <div className="group relative flex flex-col bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20">
+        <div className="group relative flex flex-col bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20 h-full">
             {/* Video Container */}
             <div className="relative aspect-[9/16] md:aspect-[4/5] overflow-hidden bg-black">
-                <video
-                    ref={videoRef}
-                    src={item.videoUrl}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    onLoadedData={() => setIsLoading(false)}
-                    onError={handleError}
-                />
+                {!isError ? (
+                    <video
+                        ref={videoRef}
+                        src={item.videoUrl}
+                        poster={item.posterUrl}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        onLoadedData={() => setIsLoading(false)}
+                        onError={handleError}
+                    />
+                ) : (
+                    // Fallback Gradient UI
+                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center p-4 text-center">
+                        <VideoOff className="w-10 h-10 text-gray-600 mb-2" />
+                        <span className="text-gray-500 text-xs font-medium uppercase tracking-widest">Preview Unavailable</span>
+                    </div>
+                )}
                 
                 {/* Loading State */}
-                {isLoading && (
+                {isLoading && !isError && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10">
                         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                     </div>
                 )}
 
-                {/* Error State Fallback UI (if both fail) */}
-                {isError && isLoading && (
-                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-20 text-gray-500">
-                        <AlertCircle className="w-8 h-8 mb-2" />
-                        <span className="text-xs">Preview Unavailable</span>
-                    </div>
-                )}
                 
                 {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity pointer-events-none" />
 
                 {/* Status Indicator */}
-                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1">
-                    {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
-                    <span>{isPlaying ? 'LIVE' : 'READY'}</span>
-                </div>
+                {!isError && (
+                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1 z-20">
+                        {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
+                        <span>{isPlaying ? 'LIVE' : 'READY'}</span>
+                    </div>
+                )}
             </div>
 
             {/* Content & Analysis */}

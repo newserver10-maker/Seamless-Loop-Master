@@ -198,7 +198,7 @@ export default function App() {
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 mt-4">
-                <p>&copy; 2026 QPERATION. All Rights Reserved.</p>
+                <p>&copy; 2026 QPERATION. Creative IP Building Group. All Rights Reserved.</p>
                 <div className="flex gap-6 mt-4 md:mt-0">
                     <span>Serverless Security</span>
                     <span>WASM Tech</span>
