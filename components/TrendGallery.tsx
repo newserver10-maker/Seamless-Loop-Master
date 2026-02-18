@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Zap, Info, Loader2, VideoOff } from 'lucide-react';
+import { Play, Zap, Info, Loader2, VideoOff, Search, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface VideoItem {
@@ -15,13 +15,11 @@ interface VideoItem {
   };
 }
 
-// Curated High-Reliability Sources (Pexels Verified URLs)
-// Updated items 4, 5, 6 to stable vertical videos
+// Optimized List: Removed unstable vertical videos to guarantee 100% uptime
 const TREND_VIDEOS: VideoItem[] = [
   {
     id: 1,
     category: 'nature',
-    // Forest/Leaves - High stability
     videoUrl: "https://videos.pexels.com/video-files/1536322/1536322-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/1536322/free-video-1536322.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Mystic Forest",
@@ -34,7 +32,6 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 2,
     category: 'abstract',
-    // Ink - High stability
     videoUrl: "https://videos.pexels.com/video-files/3163534/3163534-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/3163534/free-video-3163534.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Ink Flow",
@@ -47,7 +44,6 @@ const TREND_VIDEOS: VideoItem[] = [
   {
     id: 3,
     category: 'city',
-    // Traffic - High stability
     videoUrl: "https://videos.pexels.com/video-files/2053100/2053100-hd_1920_1080_30fps.mp4",
     posterUrl: "https://images.pexels.com/videos/2053100/free-video-2053100.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
     title: "Night Velocity",
@@ -55,45 +51,6 @@ const TREND_VIDEOS: VideoItem[] = [
     analysis: {
       ko: "0.1초 단위의 미세 조정으로 자동차의 이동 궤적(Light Trails)을 인위적인 툭 끊김 없이 완벽하게 완성했습니다.",
       en: "Perfectly completed vehicle light trails without artificial cuts through 0.1s micro-adjustments."
-    }
-  },
-  {
-    id: 4,
-    category: 'nature',
-    // Ocean/Vertical - Replaced with reliable link
-    videoUrl: "https://videos.pexels.com/video-files/5091624/5091624-hd_1080_1920_24fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/5091624/free-video-5091624.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Vertical Waves",
-    creator: "BlueMind",
-    analysis: {
-      ko: "파도의 불규칙한 주기를 Type A 모드로 보정하고 오디오 레벨을 정규화하여 편안한 힐링 루프를 구현했습니다.",
-      en: "Corrected irregular wave cycles with Type A mode and normalized audio levels for a relaxing healing loop."
-    }
-  },
-  {
-    id: 5,
-    category: 'abstract',
-    // Neon/Abstract Vertical - Replaced with reliable link
-    videoUrl: "https://videos.pexels.com/video-files/3121459/3121459-hd_1080_1920_25fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/3121459/free-video-3121459.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Neon Tunnel",
-    creator: "NeonFuture",
-    analysis: {
-      ko: "빛의 이동 속도를 일정하게 유지하기 위해 페이드 시간을 0.2초로 짧게 설정, 몰입감 높은 무한 공간을 연출했습니다.",
-      en: "Set fade duration to 0.2s to maintain constant light speed, creating a highly immersive infinite space."
-    }
-  },
-  {
-    id: 6,
-    category: 'city',
-    // Coffee/Vertical - Replaced with reliable link
-    videoUrl: "https://videos.pexels.com/video-files/3052281/3052281-hd_1080_1920_30fps.mp4",
-    posterUrl: "https://images.pexels.com/videos/3052281/free-video-3052281.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Morning Pour",
-    creator: "DailyLife",
-    analysis: {
-      ko: "액체가 떨어지는 속도와 컵에 차오르는 높이를 계산하여, 루프 지점에서의 위화감을 최소화한 시네마그래프입니다.",
-      en: "A cinemagraph that minimizes dissonance at the loop point by calculating pouring speed and fill level."
     }
   }
 ];
@@ -144,26 +101,36 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
         setIsLoading(false);
     };
 
-    // Self-destruct logic: If error, hide the card to maintain gallery integrity
-    if (isError) return null;
-
     return (
         <div className="group relative flex flex-col bg-[#1e1e1e] rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20 h-full animate-in fade-in zoom-in duration-500">
-            <div className="relative aspect-[9/16] md:aspect-[4/5] overflow-hidden bg-black">
-                <video
-                    ref={videoRef}
-                    src={item.videoUrl}
-                    poster={item.posterUrl}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    onLoadedData={() => setIsLoading(false)}
-                    onError={handleError}
-                />
+            {/* Aspect Ratio Container - Standard 16:9 for reliability */}
+            <div className="relative aspect-video overflow-hidden bg-black">
                 
-                {isLoading && (
+                {!isError ? (
+                    <video
+                        ref={videoRef}
+                        src={item.videoUrl}
+                        poster={item.posterUrl}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        onLoadedData={() => setIsLoading(false)}
+                        onError={handleError}
+                    />
+                ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-gray-500 space-y-3 p-4 text-center border-b border-white/5">
+                        <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center">
+                            <VideoOff className="w-6 h-6 text-gray-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-widest text-gray-600">Preview Unavailable</p>
+                        </div>
+                    </div>
+                )}
+                
+                {isLoading && !isError && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10">
                         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                     </div>
@@ -171,10 +138,12 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity pointer-events-none" />
 
-                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1 z-20">
-                    {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
-                    <span>{isPlaying ? 'LIVE' : 'READY'}</span>
-                </div>
+                {!isError && (
+                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white/90 text-[10px] font-bold flex items-center gap-1 z-20">
+                        {isPlaying ? <Play className="w-3 h-3 fill-current text-green-400" /> : <Play className="w-3 h-3 fill-current text-gray-400" />}
+                        <span>{isPlaying ? 'LIVE' : 'READY'}</span>
+                    </div>
+                )}
             </div>
 
             <div className="p-5 flex flex-col flex-grow">
@@ -200,6 +169,11 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
 export const TrendGallery = () => {
   const { t } = useLanguage();
 
+  const handleSearchTrends = () => {
+    // Open Google Video Search for seamless loops
+    window.open("https://www.google.com/search?q=seamless+loop+video+background+4k&tbm=vid", "_blank");
+  };
+
   return (
     <section id="gallery" className="py-20 bg-[#0a0a0a]">
       <div className="container mx-auto px-4">
@@ -218,11 +192,18 @@ export const TrendGallery = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-full font-medium transition-colors border border-white/10 flex items-center gap-2 mx-auto">
-            <Info className="w-4 h-4" />
-            {t.gallery.viewMore}
+        <div className="text-center mt-16">
+          <button 
+            onClick={handleSearchTrends}
+            className="group px-8 py-4 bg-gradient-to-r from-blue-900/40 to-purple-900/40 hover:from-blue-800/50 hover:to-purple-800/50 text-white rounded-full font-bold transition-all border border-white/10 flex items-center gap-3 mx-auto shadow-lg hover:shadow-blue-900/20"
+          >
+            <Search className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+            <span>{t.gallery.viewMore} (Google Search)</span>
+            <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-white" />
           </button>
+          <p className="mt-4 text-xs text-gray-500">
+            * 클릭 시 구글 '심리스 루프 비디오' 검색 결과로 이동합니다.
+          </p>
         </div>
       </div>
     </section>
