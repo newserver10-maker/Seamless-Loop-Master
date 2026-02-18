@@ -29,11 +29,11 @@ export const LegalInfo: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) 
           {type === 'privacy' ? (
             <>
               <h3 className="text-lg font-bold text-white mt-2">1. 개인정보 처리방침 (Privacy Policy)</h3>
-              <p>심리스 루프 마스터(이하 "서비스")는 사용자의 개인정보 보호를 위해 최선을 다합니다.</p>
+              <p>QPERATION(이하 "운영사")이 운영하는 심리스 루프 마스터(이하 "서비스")는 사용자의 개인정보 보호를 위해 최선을 다합니다.</p>
               
               <h3 className="text-lg font-bold text-white mt-4">2. 영상 데이터의 로컬 처리 (Local Processing)</h3>
               <p className="text-blue-400 font-semibold">본 서비스는 사용자의 동영상 파일을 서버로 전송하지 않습니다.</p>
-              <p>모든 영상 분석(Type A/B/C) 및 렌더링 과정은 WebAssembly 기술을 통해 사용자의 브라우저(Client-Side) 내에서만 독립적으로 수행됩니다. 따라서 서비스 운영자는 귀하의 영상 원본에 기술적으로 접근할 수 없으며, 어떠한 데이터도 저장되지 않습니다.</p>
+              <p>모든 영상 분석(Type A/B/C) 및 렌더링 과정은 WebAssembly 기술을 통해 사용자의 브라우저(Client-Side) 내에서만 독립적으로 수행됩니다. 따라서 서비스 운영자는 귀하의 영상 원본에 기술적으로 접근할 수 없으며, 어떠한 데이터도 운영사의 서버에 저장되지 않습니다.</p>
               
               <h3 className="text-lg font-bold text-white mt-4">3. 쿠키 및 광고 (Cookies & Ads)</h3>
               <p>본 사이트는 Google AdSense를 통해 광고를 게재합니다. Google은 광고 게재를 위해 사용자의 웹사이트 방문 기록을 바탕으로 쿠키(Cookie)를 사용할 수 있습니다.</p>
@@ -44,11 +44,14 @@ export const LegalInfo: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) 
 
               <h3 className="text-lg font-bold text-white mt-4">4. 수집 정보 (Data Collection)</h3>
               <p>문의하기 기능을 이용할 때 제공되는 이메일 주소와 이름은 오직 문의 응대 목적으로만 사용되며, 목적 달성 후 파기됩니다.</p>
+              
+              <h3 className="text-lg font-bold text-white mt-4">5. 운영사 정보</h3>
+              <p>본 서비스의 운영 주체는 QPERATION Creative IP Group입니다. 문의사항은 info@qperation.com으로 연락 주시기 바랍니다.</p>
             </>
           ) : (
             <>
               <h3 className="text-lg font-bold text-white mt-2">1. 서비스 이용 약관 (Terms of Service)</h3>
-              <p>본 약관은 2026 심리스 루프 마스터 서비스의 이용 조건을 규정합니다.</p>
+              <p>본 약관은 QPERATION이 제공하는 심리스 루프 마스터 서비스의 이용 조건을 규정합니다.</p>
               
               <h3 className="text-lg font-bold text-white mt-4">2. 서비스의 제공</h3>
               <p>본 서비스는 "있는 그대로(As-Is)" 제공되며, 브라우저 환경이나 사용자의 기기 사양에 따라 성능 차이가 발생할 수 있습니다.</p>

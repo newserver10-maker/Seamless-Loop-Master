@@ -3,7 +3,7 @@ export const translations = {
     nav: {
       home: "홈",
       gallery: "실시간 트렌드",
-      column: "2026 마케팅 칼럼",
+      column: "2026 마케팅 인사이트",
       howTo: "사용 가이드",
       contact: "문의하기",
       privacy: "개인정보처리방침",
@@ -12,7 +12,7 @@ export const translations = {
     app: {
       title: "2026 심리스 루프 마스터",
       subtitle: "SNS 마케팅을 위한 차세대 무한 반복 영상 제작 솔루션",
-      footer: "© 2026 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
+      footer: "© 2026 QPERATION. All rights reserved. 본 서비스는 QPERATION Creative IP Group에 의해 운영됩니다."
     },
     gallery: {
       title: "실시간 루프 AI 분석",
@@ -49,7 +49,7 @@ export const translations = {
       nameLabel: "이름 / 기업명",
       namePlace: "홍길동",
       emailLabel: "이메일",
-      emailPlace: "contact@example.com",
+      emailPlace: "contact@qperation.com",
       msgLabel: "문의 내용",
       msgPlace: "문의하실 내용을 입력해주세요...",
       sendBtn: "문의 보내기",
@@ -109,7 +109,7 @@ export const translations = {
     nav: {
       home: "Home",
       gallery: "Trending",
-      column: "Marketing Columns",
+      column: "2026 Insights",
       howTo: "Guide",
       contact: "Contact",
       privacy: "Privacy Policy",
@@ -118,7 +118,7 @@ export const translations = {
     app: {
       title: "2026 Seamless Loop Master",
       subtitle: "Next-Gen Infinite Loop Video Solution for Social Marketing",
-      footer: "© 2026 Seamless Loop Master. All rights reserved. Secure browser-based processing."
+      footer: "© 2026 QPERATION. All rights reserved. Managed by QPERATION Creative IP Group."
     },
     gallery: {
       title: "Real-time Loop Trends & Analysis",
@@ -155,7 +155,7 @@ export const translations = {
       nameLabel: "Name / Company",
       namePlace: "John Doe",
       emailLabel: "Email",
-      emailPlace: "contact@example.com",
+      emailPlace: "contact@qperation.com",
       msgLabel: "Message",
       msgPlace: "Type your message here...",
       sendBtn: "Send Message",

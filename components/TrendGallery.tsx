@@ -15,7 +15,7 @@ interface VideoItem {
   };
 }
 
-// Curated High-Quality Sources with Fallbacks
+// Curated High-Quality Sources with Fallbacks (Pexels Stable Links)
 const TREND_VIDEOS: VideoItem[] = [
   {
     id: 1,
@@ -143,8 +143,11 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
         if (videoRef.current && !isError) {
             console.warn(`Video load error for ${item.title}, trying fallback...`);
             setIsError(true);
-            videoRef.current.src = item.fallbackUrl;
-            videoRef.current.load();
+            // Fallback strategy
+            if (item.fallbackUrl && videoRef.current.src !== item.fallbackUrl) {
+                 videoRef.current.src = item.fallbackUrl;
+                 videoRef.current.load();
+            }
         }
     };
 
@@ -159,7 +162,7 @@ const TrendVideoCard = ({ item }: { item: VideoItem }) => {
                     muted
                     loop
                     playsInline
-                    preload="metadata"
+                    preload="none"
                     onLoadedData={() => setIsLoading(false)}
                     onError={handleError}
                 />

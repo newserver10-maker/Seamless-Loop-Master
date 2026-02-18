@@ -165,9 +165,10 @@ export default function App() {
                         {t.app.footer}
                     </p>
                     <div className="flex gap-4">
-                        {/* Social Placeholders */}
-                        <div className="w-8 h-8 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer"></div>
-                        <div className="w-8 h-8 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer"></div>
+                        <div className="text-xs text-gray-600">
+                             Managed and Operated by <strong className="text-gray-400">QPERATION</strong><br/>
+                             Creative IP Building Group
+                        </div>
                     </div>
                 </div>
                 
@@ -197,11 +198,12 @@ export default function App() {
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 mt-4">
-                <p>&copy; 2026 Seamless Loop Master. Korea.</p>
+                <p>&copy; 2026 QPERATION. All Rights Reserved.</p>
                 <div className="flex gap-6 mt-4 md:mt-0">
                     <span>Serverless Security</span>
                     <span>WASM Tech</span>
                     <span>GDPR Compliant</span>
+                    <span>Contact: info@qperation.com</span>
                 </div>
             </div>
         </div>
