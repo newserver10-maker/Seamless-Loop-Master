@@ -2,8 +2,8 @@ export const translations = {
   ko: {
     nav: {
       home: "홈",
-      gallery: "트렌드 갤러리",
-      insights: "인사이트",
+      gallery: "실시간 트렌드",
+      column: "2026 마케팅 칼럼",
       howTo: "사용 가이드",
       contact: "문의하기",
       privacy: "개인정보처리방침",
@@ -15,17 +15,18 @@ export const translations = {
       footer: "© 2026 Seamless Loop Master. All rights reserved. 본 서비스는 서버 업로드 없이 브라우저에서 안전하게 작동합니다."
     },
     gallery: {
-      title: "실시간 루프 트렌드 갤러리",
-      desc: "전 세계 크리에이터들이 주목하는 고품질 심리스 루프 영상을 확인하세요.",
+      title: "실시간 루프 AI 분석",
+      desc: "전 세계 크리에이터들이 주목하는 고품질 심리스 루프 영상과 전문가의 기술 분석.",
       viewMore: "더 많은 트렌드 보기",
-      hoverPlay: "마우스를 올리면 재생됩니다"
+      aiAnalysis: "AI 기술 분석",
+      hoverPlay: "소리 없이 자동 재생 중"
     },
     insights: {
       title: "2026 숏폼 & 루프 테크 칼럼",
       readMore: "자세히 읽기"
     },
     howto: {
-      title: "3단계로 완성하는 완벽한 루프",
+      title: "전문가처럼 루프 영상 제작하기",
       step1: "영상 업로드",
       step1Desc: "MP4, MOV 등 원본 파일을 드래그하여 업로드하세요.",
       step2: "구간 및 모드 설정",
@@ -107,9 +108,9 @@ export const translations = {
   en: {
     nav: {
       home: "Home",
-      gallery: "Trend Gallery",
-      insights: "Insights",
-      howTo: "How to Use",
+      gallery: "Trending",
+      column: "Marketing Columns",
+      howTo: "Guide",
       contact: "Contact",
       privacy: "Privacy Policy",
       terms: "Terms of Service"
@@ -120,17 +121,18 @@ export const translations = {
       footer: "© 2026 Seamless Loop Master. All rights reserved. Secure browser-based processing."
     },
     gallery: {
-      title: "Real-time Loop Trend Gallery",
-      desc: "Discover high-quality seamless loop videos trending worldwide.",
+      title: "Real-time Loop Trends & Analysis",
+      desc: "Discover high-quality seamless loop videos trending worldwide with expert analysis.",
       viewMore: "View More Trends",
-      hoverPlay: "Hover to play preview"
+      aiAnalysis: "AI Technique Analysis",
+      hoverPlay: "Auto-playing muted"
     },
     insights: {
       title: "2026 Short-form & Loop Tech Columns",
       readMore: "Read More"
     },
     howto: {
-      title: "Perfect Loops in 3 Steps",
+      title: "Create Loops Like a Pro",
       step1: "Upload Video",
       step1Desc: "Drag and drop your MP4, MOV source files.",
       step2: "Configure Loop",

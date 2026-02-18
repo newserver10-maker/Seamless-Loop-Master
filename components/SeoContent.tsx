@@ -1,77 +1,121 @@
 import React from 'react';
-import { BookOpen, Cpu, TrendingUp, Layers, HelpCircle, CheckCircle2, Zap, BarChart } from 'lucide-react';
+import { BookOpen, Cpu, TrendingUp, Layers, HelpCircle, CheckCircle2, Zap, BarChart, FileVideo, Settings, Download, Lightbulb } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export const SeoContent = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const ArticleCard = ({ icon, title, date, children }: { icon: React.ReactNode, title: string, date: string, children: React.ReactNode }) => (
-    <article className="bg-[#1e1e1e] p-8 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+    <article className="bg-[#1e1e1e] p-8 rounded-2xl border border-white/5 hover:border-white/10 transition-colors h-full flex flex-col">
         <header className="mb-6">
             <div className="flex items-center gap-2 text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">
                 {icon}
                 <span>{date}</span>
             </div>
-            <h2 className="text-2xl font-bold text-white leading-tight">{title}</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-white leading-tight">{title}</h2>
         </header>
-        <div className="prose prose-invert max-w-none text-gray-400 leading-7 text-sm">
+        <div className="prose prose-invert max-w-none text-gray-400 leading-7 text-sm flex-grow">
             {children}
         </div>
     </article>
   );
 
   return (
-    <section className="max-w-7xl mx-auto mt-20 px-4 space-y-20 border-t border-white/5 pt-16">
+    <section className="max-w-7xl mx-auto mt-20 px-4 space-y-24 border-t border-white/5 pt-16">
+
+      {/* Expert Guide Section (Visual How-To) */}
+      <div id="howto-guide" className="space-y-12">
+          <div className="text-center">
+            <h2 className="text-3xl font-black text-white mb-4">
+                {t.howto.title}
+            </h2>
+            <p className="text-gray-400">Step-by-Step Professional Guide</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-[#121212] p-8 rounded-3xl border border-white/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">STEP 01</div>
+                  <div className="w-16 h-16 bg-blue-900/20 rounded-2xl flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform">
+                      <FileVideo className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{t.howto.step1}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{t.howto.step1Desc}</p>
+              </div>
+
+              <div className="bg-[#121212] p-8 rounded-3xl border border-white/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">STEP 02</div>
+                  <div className="w-16 h-16 bg-purple-900/20 rounded-2xl flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform">
+                      <Settings className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{t.howto.step2}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{t.howto.step2Desc}</p>
+                  <ul className="mt-4 text-xs text-gray-500 space-y-1">
+                      <li>• Type A: 풍경/배경 영상 (Crossfade)</li>
+                      <li>• Type B: 복잡한 패턴 (AI Analysis)</li>
+                      <li>• Type C: 댄스/액션 (Boomerang)</li>
+                  </ul>
+              </div>
+
+              <div className="bg-[#121212] p-8 rounded-3xl border border-white/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">STEP 03</div>
+                  <div className="w-16 h-16 bg-green-900/20 rounded-2xl flex items-center justify-center mb-6 text-green-400 group-hover:scale-110 transition-transform">
+                      <Download className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{t.howto.step3}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{t.howto.step3Desc}</p>
+              </div>
+          </div>
+      </div>
       
       {/* 2026 Trend Columns Section */}
-      <div id="insights">
+      <div id="column">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">2026 Media Insights</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">2026 Marketing Columns</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
                 심리스 루프 마스터가 분석한 최신 숏폼 트렌드와 기술 전략
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Article 1: 2026 Trend */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            {/* Article 1: Core Trend */}
             <ArticleCard 
                 icon={<TrendingUp className="w-4 h-4" />} 
-                title="2026년 숏폼 콘텐츠 트렌드: 왜 무한 루프가 다시 주목받는가?" 
-                date="2026 TREND REPORT"
+                title={language === 'ko' ? "2026년 비디오 마케팅의 핵심: 심리스 루프가 체류 시간에 미치는 영향" : "2026 Core Trend: Impact of Seamless Loops on Retention"} 
+                date="TREND REPORT"
             >
                 <p>
-                    2026년 디지털 마케팅의 화두는 단연 '도파민 루프(Dopamine Loop)'입니다. 사용자의 주의 집중 시간이 3초 미만으로 짧아진 현재, 콘텐츠의 시작과 끝을 모호하게 만드는 심리스 루프 기법은 선택이 아닌 필수가 되었습니다.
+                    2026년, 콘텐츠 소비 패턴은 '스낵 컬처'를 넘어 '나노 모먼트(Nano Moment)' 시대로 진입했습니다. 사용자가 콘텐츠의 가치를 판단하는 시간은 이제 1.5초에 불과합니다.
                 </p>
                 <p className="mt-4">
-                    최근 틱톡과 인스타그램 릴스의 알고리즘 업데이트는 '재시청률(Re-watch Rate)'에 가장 높은 가중치를 부여합니다. 완벽하게 연결된 루프 영상은 시청자가 영상이 끝났음을 인지하지 못하게 하여 자연스럽게 2회, 3회 시청을 유도합니다. 이는 단순한 조회수 증가를 넘어, 플랫폼 알고리즘이 해당 콘텐츠를 '고품질'로 인식하게 만드는 가장 강력한 신호입니다.
+                    <strong>'끝나지 않는 영상(Never-ending Video)'</strong> 포맷은 알고리즘의 선택을 받는 가장 강력한 무기입니다. 심리스 루프는 완결점을 감춤으로써 시청자가 무의식적으로 영상을 반복 재생하게 만들어, 플랫폼 체류 시간(Dwell Time)을 평균 300% 이상 증대시킵니다.
                 </p>
             </ArticleCard>
 
-            {/* Article 2: Marketing Strategy */}
-            <ArticleCard 
-                icon={<BarChart className="w-4 h-4" />} 
-                title="심리스 루프 영상을 활용한 브랜드 마케팅 성공 사례 분석" 
-                date="MARKETING STRATEGY"
-            >
-                <p>
-                    글로벌 패션 브랜드 A사는 2025년 F/W 캠페인에서 정적인 룩북 대신 'Type C (부메랑)' 모드를 활용한 루프 룩북을 선보였습니다. 모델의 턴 동작을 끊김 없이 반복시킨 이 5초짜리 영상은 일반 영상 대비 450% 높은 평균 시청 시간을 기록했습니다.
-                </p>
-                <p className="mt-4">
-                    브랜드 마케팅에서 루프 영상은 '시각적 최면' 효과를 줍니다. 반복되는 브랜드 로고나 제품의 움직임은 소비자의 잠재의식 속에 브랜드를 깊이 각인시킵니다. 특히 ASMR이나 시네마그래프(Cinemagraph) 스타일의 미세한 움직임은 사용자의 피로도를 낮추면서도 지속적인 노출을 가능하게 하는 고효율 전략입니다.
-                </p>
-            </ArticleCard>
-
-            {/* Article 3: Tech Analysis */}
+            {/* Article 2: Technical Deep Dive */}
             <ArticleCard 
                 icon={<Cpu className="w-4 h-4" />} 
-                title="AI 프레임 분석(Type B)과 마이크로 크로스페이드 기술의 원리" 
-                date="TECH DEEP DIVE"
+                title={language === 'ko' ? "AI 프레임 분석(Type B)과 마이크로 크로스페이드 기술의 원리" : "Deep Dive: AI Frame Analysis & Micro-Crossfade"} 
+                date="TECH INSIGHT"
             >
                 <p>
-                    심리스 루프 마스터의 핵심 기술인 'Type B' 모드는 단순한 페이드 효과가 아닙니다. 이는 MSE(Mean Squared Error) 알고리즘을 브라우저 내에서 실시간으로 구동하여 수행됩니다.
+                    심리스 루프 마스터의 핵심 기술인 'Type B' 모드는 단순한 페이드 효과가 아닙니다. MSE(Mean Squared Error) 알고리즘을 브라우저 내에서 실시간으로 구동하여 최적의 프레임을 찾아냅니다.
                 </p>
                 <p className="mt-4">
-                    WebAssembly(WASM) 기반의 FFmpeg 엔진은 영상의 첫 프레임과 가장 유사한 픽셀 패턴을 가진 마지막 프레임 구간을 0.01초 단위로 스캔합니다. 육안으로는 식별 불가능한 '수학적 최적 접점'을 찾아낸 후, 비선형(Non-linear) 마이크로 크로스페이드를 적용하여 글리치(Glitch) 없는 완벽한 결합을 만들어냅니다. 이 모든 과정이 서버 전송 없이 사용자의 GPU를 통해 로컬에서 안전하게 처리됩니다.
+                    WebAssembly(WASM) 기반 엔진은 영상의 첫 프레임과 가장 유사한 픽셀 패턴을 가진 마지막 프레임 구간을 0.01초 단위로 스캔하여, 비선형(Non-linear) 마이크로 크로스페이드를 적용, 글리치(Glitch) 없는 완벽한 결합을 만들어냅니다.
+                </p>
+            </ArticleCard>
+
+             {/* Article 3: Innovation (New) */}
+            <ArticleCard 
+                icon={<Lightbulb className="w-4 h-4" />} 
+                title={language === 'ko' ? "AI 기반 심리스 루프 기술이 디지털 광고에 미치는 혁신적인 영향" : "Innovative Impact of AI-based Seamless Loop Technology"} 
+                date="INNOVATION"
+            >
+                <p>
+                   단순 반복이 아닌 '지능형 루프'는 광고 피로도를 획기적으로 낮춥니다. AI가 영상의 역동적인 부분(움직임)과 정적인 부분(배경)을 분리하여 처리함으로써, 시청자는 광고를 보고 있다는 인식보다 하나의 '움직이는 예술 작품'을 감상한다는 느낌을 받게 됩니다.
+                </p>
+                <p className="mt-4">
+                   특히 DOOH(디지털 옥외광고)와 SNS 쇼핑 피드에서 이러한 초고화질 심리스 루프 영상은 일반 영상 대비 클릭률(CTR)이 2.5배 높게 측정되고 있습니다.
                 </p>
             </ArticleCard>
           </div>

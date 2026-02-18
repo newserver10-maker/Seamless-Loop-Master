@@ -38,17 +38,6 @@ export default function App() {
     setLegalModal({ isOpen: true, type });
   };
 
-  const HowToCard = ({ icon, step, title, desc }: { icon: React.ReactNode, step: string, title: string, desc: string }) => (
-    <div className="bg-[#1e1e1e] p-6 rounded-xl border border-white/5 flex flex-col items-center text-center hover:border-blue-500/30 transition-colors">
-        <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 mb-4">
-            {icon}
-        </div>
-        <div className="text-xs font-bold text-blue-500 mb-1 uppercase tracking-wider">{step}</div>
-        <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-        <p className="text-sm text-gray-400">{desc}</p>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-[#121212] text-white font-sans selection:bg-blue-500/30 flex flex-col">
       {/* Background decoration */}
@@ -73,10 +62,11 @@ export default function App() {
                 <button onClick={() => { setFile(null); window.scrollTo(0,0); }} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.home}</button>
                 <button onClick={() => scrollToSection('gallery')} className="hover:text-white hover:text-blue-400 transition-colors flex items-center gap-1">
                     {t.nav.gallery}
-                    <span className="bg-blue-600 text-[9px] px-1 rounded text-white font-bold">NEW</span>
+                    <span className="bg-blue-600 text-[9px] px-1 rounded text-white font-bold">HOT</span>
                 </button>
-                <button onClick={() => scrollToSection('insights')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.insights}</button>
-                <button onClick={() => scrollToSection('howto')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.howTo}</button>
+                <button onClick={() => scrollToSection('howto-guide')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.howTo}</button>
+                <button onClick={() => scrollToSection('column')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.column}</button>
+                <button onClick={() => openLegal('privacy')} className="hover:text-white hover:text-blue-400 transition-colors">{t.nav.privacy}</button>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -101,8 +91,9 @@ export default function App() {
                 <div className="flex flex-col p-4 space-y-4 text-sm font-medium text-gray-300">
                     <button onClick={() => { setFile(null); window.scrollTo(0,0); setIsMenuOpen(false); }}>{t.nav.home}</button>
                     <button onClick={() => scrollToSection('gallery')} className="flex items-center gap-2 text-blue-400 font-bold">{t.nav.gallery} <span className="text-[10px] bg-blue-600 text-white px-1 rounded">HOT</span></button>
-                    <button onClick={() => scrollToSection('insights')}>{t.nav.insights}</button>
-                    <button onClick={() => scrollToSection('howto')}>{t.nav.howTo}</button>
+                    <button onClick={() => scrollToSection('howto-guide')}>{t.nav.howTo}</button>
+                    <button onClick={() => scrollToSection('column')}>{t.nav.column}</button>
+                    <button onClick={() => openLegal('privacy')}>{t.nav.privacy}</button>
                 </div>
              </div>
         )}
@@ -145,35 +136,7 @@ export default function App() {
              </div>
 
              <div className="container mx-auto px-4">
-                {/* How To Use Section */}
-                <section id="howto" className="py-12 border-t border-white/5">
-                    <div className="text-center mb-10">
-                        <h2 className="text-2xl font-bold text-white mb-2">{t.howto.title}</h2>
-                        <div className="h-1 w-12 bg-blue-500 mx-auto rounded-full"></div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                        <HowToCard 
-                            icon={<MousePointerClick className="w-6 h-6"/>} 
-                            step="Step 1" 
-                            title={t.howto.step1} 
-                            desc={t.howto.step1Desc} 
-                        />
-                        <HowToCard 
-                            icon={<Settings2 className="w-6 h-6"/>} 
-                            step="Step 2" 
-                            title={t.howto.step2} 
-                            desc={t.howto.step2Desc} 
-                        />
-                        <HowToCard 
-                            icon={<Download className="w-6 h-6"/>} 
-                            step="Step 3" 
-                            title={t.howto.step3} 
-                            desc={t.howto.step3Desc} 
-                        />
-                    </div>
-                </section>
-                
-                {/* Rich SEO Content & Insights */}
+                {/* Rich SEO Content (Guide, Column, FAQ) */}
                 <SeoContent />
 
                 <div id="contact" className="border-t border-white/5 pt-16 mt-16">
@@ -205,7 +168,6 @@ export default function App() {
                         {/* Social Placeholders */}
                         <div className="w-8 h-8 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer"></div>
                         <div className="w-8 h-8 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer"></div>
-                        <div className="w-8 h-8 bg-white/5 rounded-full hover:bg-white/10 cursor-pointer"></div>
                     </div>
                 </div>
                 
@@ -214,7 +176,8 @@ export default function App() {
                     <ul className="space-y-3 text-sm text-gray-500 font-medium">
                         <li><button onClick={() => { setFile(null); window.scrollTo(0,0); }} className="hover:text-blue-400 transition-colors">{t.nav.home}</button></li>
                         <li><button onClick={() => scrollToSection('gallery')} className="hover:text-blue-400 transition-colors">{t.nav.gallery}</button></li>
-                        <li><button onClick={() => scrollToSection('insights')} className="hover:text-blue-400 transition-colors">{t.nav.insights}</button></li>
+                        <li><button onClick={() => scrollToSection('howto-guide')} className="hover:text-blue-400 transition-colors">{t.nav.howTo}</button></li>
+                        <li><button onClick={() => scrollToSection('column')} className="hover:text-blue-400 transition-colors">{t.nav.column}</button></li>
                     </ul>
                 </div>
 

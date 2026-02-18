@@ -20,7 +20,7 @@
 
     <meta name="google-adsense-account" content="ca-pub-2474795707346572">
     
-    <!-- JSON-LD Schema for Software Application & Organization -->
+    <!-- JSON-LD Schema for Software Application & HowTo -->
     <script type="application/ld+json">
     [
       {
@@ -39,14 +39,25 @@
       },
       {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Seamless Loop Master Media Portal",
-        "url": "https://seamlessloopmaster.com/",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://seamlessloopmaster.com/?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
+        "@type": "HowTo",
+        "name": "How to create a seamless loop video",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload Video",
+            "text": "Upload your source video file (MP4, MOV)."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Select Loop Mode",
+            "text": "Choose between Crossfade, AI Analysis, or Boomerang mode."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Export",
+            "text": "Download the final seamless loop as MP4 or GIF."
+          }
+        ]
       }
     ]
     </script>
@@ -80,8 +91,8 @@
       }
       .masonry-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        grid-gap: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-gap: 24px;
       }
     </style>
   <script type="importmap">
